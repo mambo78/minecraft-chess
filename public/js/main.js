@@ -4,6 +4,9 @@ class MathiasChess {
         this.ui = new ChessUI(this.chess);
         this.multiplayer = new Multiplayer(this.ui);
         this.themes = new ChessThemes();
+        this.ai = new ChessAI(this.chess);
+        this.gameMode = 'human'; // 'human' or 'ai'
+        this.isAiGame = false;
         
         this.initializeGame();
         this.bindEvents();
@@ -77,6 +80,11 @@ class MathiasChess {
                         } else if (status === 'stalemate') {
                             this.ui.showMessage('Stalemate! Game is a draw.', 'info');
                         }
+                        
+                        // Handle AI move if in AI mode
+                        if (this.isAiGame && this.chess.currentPlayer === 'black' && status === 'active') {
+                            setTimeout(() => this.makeAiMove(), 100);
+                        }
                     }
                 }
                 
@@ -133,6 +141,41 @@ class MathiasChess {
                 this.themes.setTheme(randomTheme.id);
                 themeSelector.value = randomTheme.id;
                 this.ui.showMessage(`Random theme: ${randomTheme.name}! 🎲`, 'success');
+            });
+        }
+        
+        // Game mode buttons
+        const vsHumanBtn = document.getElementById('vs-human-btn');
+        const vsAiBtn = document.getElementById('vs-ai-btn');
+        const aiControls = document.getElementById('ai-controls');
+        const aiHintBtn = document.getElementById('ai-hint-btn');
+        
+        if (vsHumanBtn) {
+            vsHumanBtn.addEventListener('click', () => {
+                this.setGameMode('human');
+            });
+        }
+        
+        if (vsAiBtn) {
+            vsAiBtn.addEventListener('click', () => {
+                this.setGameMode('ai');
+            });
+        }
+        
+        // AI difficulty selector
+        const aiDifficultySelector = document.getElementById('ai-difficulty');
+        if (aiDifficultySelector) {
+            aiDifficultySelector.addEventListener('change', (e) => {
+                this.ai.setDifficulty(e.target.value);
+                this.updateAiInfo();
+                this.ui.showMessage(`AI difficulty: ${this.ai.getDifficultyInfo().name}`, 'info');
+            });
+        }
+        
+        // AI hint button
+        if (aiHintBtn) {
+            aiHintBtn.addEventListener('click', () => {
+                this.showAiHint();
             });
         }
 
@@ -200,6 +243,124 @@ class MathiasChess {
         }
     }
 
+    setGameMode(mode) {
+        this.gameMode = mode;
+        this.isAiGame = (mode === 'ai');
+        
+        const vsHumanBtn = document.getElementById('vs-human-btn');
+        const vsAiBtn = document.getElementById('vs-ai-btn');
+        const aiControls = document.getElementById('ai-controls');
+        const aiHintBtn = document.getElementById('ai-hint-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        
+        // Update button states
+        if (vsHumanBtn && vsAiBtn) {
+            vsHumanBtn.classList.toggle('active', mode === 'human');
+            vsAiBtn.classList.toggle('active', mode === 'ai');
+        }
+        
+        // Show/hide AI controls
+        if (aiControls) {
+            aiControls.classList.toggle('hidden', mode !== 'ai');
+        }
+        
+        // Show/hide AI hint button
+        if (aiHintBtn && hintBtn) {
+            aiHintBtn.classList.toggle('hidden', mode !== 'ai');
+            hintBtn.classList.toggle('hidden', mode === 'ai');
+        }
+        
+        this.updateAiInfo();
+        
+        // Start new game in the new mode
+        this.newGame();
+        
+        const modeText = mode === 'ai' ? 'vs Computer' : 'vs Human';
+        this.ui.showMessage(`Game mode: ${modeText}`, 'success');
+    }
+    
+    async makeAiMove() {
+        if (!this.isAiGame || this.chess.currentPlayer !== 'black') return;
+        
+        try {
+            const aiMove = await this.ai.makeMove();
+            
+            if (aiMove) {
+                const success = this.chess.makeMove(
+                    aiMove.from.row,
+                    aiMove.from.col,
+                    aiMove.to.row,
+                    aiMove.to.col
+                );
+                
+                if (success) {
+                    this.ui.updateDisplay();
+                    
+                    // Check game status after AI move
+                    const status = this.chess.gameStatus;
+                    if (status === 'check') {
+                        this.ui.showMessage('You are in check! 🤖', 'warning');
+                    } else if (status === 'checkmate') {
+                        this.ui.showMessage('Checkmate! Computer wins! 🤖🏆', 'error');
+                    } else if (status === 'stalemate') {
+                        this.ui.showMessage('Stalemate! Game is a draw.', 'info');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('AI move error:', error);
+            this.ui.showMessage('AI error occurred', 'error');
+        }
+    }
+    
+    updateAiInfo() {
+        const aiInfo = document.getElementById('ai-info');
+        if (aiInfo && this.ai) {
+            const difficulty = this.ai.getDifficultyInfo();
+            aiInfo.textContent = difficulty.description;
+        }
+    }
+    
+    showAiHint() {
+        if (!this.isAiGame) return;
+        
+        const hint = this.ai.getHint();
+        if (hint) {
+            const fromSquare = this.getSquareNotation(hint.from.row, hint.from.col);
+            const toSquare = this.getSquareNotation(hint.to.row, hint.to.col);
+            this.ui.showMessage(`💡 AI suggests: ${hint.piece.type} ${fromSquare} → ${toSquare}`, 'info');
+            
+            // Highlight the suggested move briefly
+            this.highlightHint(hint);
+        } else {
+            this.ui.showMessage('No hints available', 'warning');
+        }
+    }
+    
+    highlightHint(hint) {
+        const boardElement = document.getElementById('chess-board');
+        const squares = boardElement.querySelectorAll('.square');
+        
+        squares.forEach(square => {
+            const row = parseInt(square.dataset.row);
+            const col = parseInt(square.dataset.col);
+            
+            if ((row === hint.from.row && col === hint.from.col) || 
+                (row === hint.to.row && col === hint.to.col)) {
+                square.style.boxShadow = '0 0 20px #00FF00';
+                setTimeout(() => {
+                    square.style.boxShadow = '';
+                }, 2000);
+            }
+        });
+    }
+    
+    getSquareNotation(row, col) {
+        const files = 'abcdefgh';
+        const ranks = '87654321';
+        return files[col] + ranks[row];
+    }
+    
     getGameInfo() {
         const multiplayerInfo = this.multiplayer.getCurrentPlayerInfo();
         return {
@@ -207,7 +368,10 @@ class MathiasChess {
             gameStatus: this.chess.gameStatus,
             moveCount: this.chess.gameHistory.length,
             capturedPieces: this.chess.capturedPieces,
-            multiplayer: multiplayerInfo
+            multiplayer: multiplayerInfo,
+            gameMode: this.gameMode,
+            isAiGame: this.isAiGame,
+            aiDifficulty: this.ai.getDifficultyInfo()
         };
     }
 

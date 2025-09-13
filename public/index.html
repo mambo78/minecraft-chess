@@ -69,10 +69,29 @@
                     </div>
                     
                     <div class="section">
+                        <h3>🎮 Game Mode</h3>
+                        <button id="vs-human-btn" class="btn mode-btn active">👥 vs Human</button>
+                        <button id="vs-ai-btn" class="btn mode-btn">🤖 vs Computer</button>
+                        
+                        <div id="ai-controls" class="ai-controls hidden">
+                            <select id="ai-difficulty" class="theme-selector">
+                                <option value="easy">😊 Easy</option>
+                                <option value="medium" selected>🤔 Medium</option>
+                                <option value="hard">😤 Hard</option>
+                                <option value="expert">🧠 Expert</option>
+                            </select>
+                            <div class="ai-info" id="ai-info">
+                                Thinks ahead, moderate challenge
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
                         <h3>Controls</h3>
                         <button id="new-game-btn" class="btn">New Game</button>
                         <button id="undo-btn" class="btn">Undo Move</button>
                         <button id="hint-btn" class="btn">Show Hint</button>
+                        <button id="ai-hint-btn" class="btn hidden">🤖 AI Hint</button>
                     </div>
 
                     <div class="section">
@@ -115,6 +134,7 @@
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/themes.js"></script>
+    <script src="js/ai.js"></script>
     <script src="js/chess.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/multiplayer.js"></script>

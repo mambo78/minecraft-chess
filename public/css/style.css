@@ -370,6 +370,54 @@ body {
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+/* AI Controls */
+.mode-btn {
+    margin: 5px 2px !important;
+    width: calc(50% - 4px) !important;
+    padding: 8px !important;
+    font-size: 1.2rem !important;
+}
+
+.mode-btn.active {
+    background: var(--minecraft-gold) !important;
+    color: var(--minecraft-black) !important;
+    border-color: var(--minecraft-dark-brown) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ai-controls {
+    margin-top: 15px;
+    padding: 15px;
+    border: 2px solid var(--minecraft-stone);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.ai-controls.hidden {
+    display: none;
+}
+
+.ai-info {
+    font-size: 1rem;
+    color: var(--minecraft-light-brown);
+    text-align: center;
+    margin-top: 10px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* AI Thinking Animation */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
 .status {
     padding: 10px;
     border-radius: 5px;

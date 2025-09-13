@@ -8,6 +8,12 @@ class Chess {
         this.gameStatus = 'active';
         this.selectedSquare = null;
         
+        // Castling rights tracking
+        this.castlingRights = {
+            white: { kingside: true, queenside: true },
+            black: { kingside: true, queenside: true }
+        };
+        
         this.initializeBoard();
     }
     
@@ -92,7 +98,15 @@ class Chess {
                        (colDiff === 0 && rowDiff !== 0);
             
             case 'king':
-                return absRowDiff <= 1 && absColDiff <= 1 && (absRowDiff + absColDiff > 0);
+                // Normal king move
+                if (absRowDiff <= 1 && absColDiff <= 1 && (absRowDiff + absColDiff > 0)) {
+                    return true;
+                }
+                // Castling move (king moves 2 squares horizontally)
+                if (absRowDiff === 0 && absColDiff === 2) {
+                    return this.canCastle(piece, fromRow, fromCol, toRow, toCol);
+                }
+                return false;
             
             case 'knight':
                 return (absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2);
@@ -130,8 +144,8 @@ class Chess {
         // Knights can jump over pieces
         if (pieceType === 'knight') return true;
         
-        // Kings move only one square
-        if (pieceType === 'king') return true;
+        // Kings move only one square (castling handled separately)
+        if (pieceType === 'king' && Math.abs(toCol - fromCol) <= 1) return true;
         
         const rowStep = Math.sign(toRow - fromRow);
         const colStep = Math.sign(toCol - fromCol);
@@ -145,6 +159,50 @@ class Chess {
             }
             currentRow += rowStep;
             currentCol += colStep;
+        }
+        
+        return true;
+    }
+    
+    canCastle(king, fromRow, fromCol, toRow, toCol) {
+        const color = king.color;
+        const isKingside = toCol > fromCol;
+        
+        // Check if castling rights exist
+        if (isKingside && !this.castlingRights[color].kingside) return false;
+        if (!isKingside && !this.castlingRights[color].queenside) return false;
+        
+        // King must not be in check
+        if (this.isKingInCheck(color)) return false;
+        
+        // Check if rook is in correct position
+        const rookCol = isKingside ? 7 : 0;
+        const rook = this.getPiece(fromRow, rookCol);
+        if (!rook || rook.type !== 'rook' || rook.color !== color) return false;
+        
+        // Path must be clear between king and rook
+        const startCol = Math.min(fromCol, rookCol) + 1;
+        const endCol = Math.max(fromCol, rookCol) - 1;
+        for (let col = startCol; col <= endCol; col++) {
+            if (this.getPiece(fromRow, col)) return false;
+        }
+        
+        // King must not pass through check
+        const step = isKingside ? 1 : -1;
+        for (let col = fromCol; col !== toCol + step; col += step) {
+            if (col !== fromCol) { // Don't check starting position again
+                // Temporarily move king to test for check
+                this.setPiece(fromRow, col, king);
+                this.setPiece(fromRow, fromCol, null);
+                
+                const inCheck = this.isKingInCheck(color);
+                
+                // Restore position
+                this.setPiece(fromRow, fromCol, king);
+                this.setPiece(fromRow, col, null);
+                
+                if (inCheck) return false;
+            }
         }
         
         return true;
@@ -234,9 +292,40 @@ class Chess {
             this.capturedPieces[capturedPiece.color].push(capturedPiece);
         }
         
+        // Handle castling
+        const isCastling = movingPiece.type === 'king' && Math.abs(toCol - fromCol) === 2;
+        if (isCastling) {
+            const isKingside = toCol > fromCol;
+            const rookFromCol = isKingside ? 7 : 0;
+            const rookToCol = isKingside ? toCol - 1 : toCol + 1;
+            const rook = this.getPiece(fromRow, rookFromCol);
+            
+            // Move the rook
+            this.setPiece(fromRow, rookToCol, rook);
+            this.setPiece(fromRow, rookFromCol, null);
+            
+            move.isCastling = true;
+            move.rookMove = { from: { row: fromRow, col: rookFromCol }, to: { row: fromRow, col: rookToCol } };
+        }
+        
         // Make the move
         this.setPiece(toRow, toCol, movingPiece);
         this.setPiece(fromRow, fromCol, null);
+        
+        // Update castling rights
+        if (movingPiece.type === 'king') {
+            this.castlingRights[movingPiece.color].kingside = false;
+            this.castlingRights[movingPiece.color].queenside = false;
+        }
+        if (movingPiece.type === 'rook') {
+            if (fromCol === 0) this.castlingRights[movingPiece.color].queenside = false;
+            if (fromCol === 7) this.castlingRights[movingPiece.color].kingside = false;
+        }
+        // If a rook is captured, update castling rights
+        if (capturedPiece && capturedPiece.type === 'rook') {
+            if (toCol === 0) this.castlingRights[capturedPiece.color].queenside = false;
+            if (toCol === 7) this.castlingRights[capturedPiece.color].kingside = false;
+        }
         
         // Check for pawn promotion
         if (movingPiece.type === 'pawn') {

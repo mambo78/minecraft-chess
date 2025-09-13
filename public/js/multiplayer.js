@@ -14,7 +14,7 @@ class Multiplayer {
         this.connectBtn = document.getElementById('connect-btn');
         this.joinRoomBtn = document.getElementById('join-room-btn');
         this.roomInput = document.getElementById('room-input');
-        this.connectionIndicator = document.getElementById('connection-indicator');
+        this.connectionIndicator = document.getElementById('connection-status');
     }
 
     bindEvents() {
@@ -64,7 +64,7 @@ class Multiplayer {
                 this.isConnected = false;
                 this.updateConnectionStatus();
                 this.ui.showMessage('Disconnected from server', 'warning');
-                this.connectBtn.textContent = 'Connect to Server';
+                this.connectBtn.textContent = 'Connect';
                 this.currentRoom = null;
                 this.playerColor = null;
             });
@@ -140,7 +140,7 @@ class Multiplayer {
         this.playerColor = null;
         this.updateConnectionStatus();
         this.resetPlayerNames();
-        this.connectBtn.textContent = 'Connect to Server';
+        this.connectBtn.textContent = 'Connect';
     }
 
     joinRoom(roomId) {
@@ -180,33 +180,35 @@ class Multiplayer {
     }
 
     updateConnectionStatus() {
-        if (this.isConnected) {
-            this.connectionIndicator.className = 'status-indicator online';
-            this.connectionIndicator.textContent = 'Online';
-        } else {
-            this.connectionIndicator.className = 'status-indicator offline';
-            this.connectionIndicator.textContent = 'Offline';
+        if (this.connectionIndicator) {
+            if (this.isConnected) {
+                this.connectionIndicator.className = 'status online';
+                this.connectionIndicator.textContent = 'Online';
+            } else {
+                this.connectionIndicator.className = 'status offline';
+                this.connectionIndicator.textContent = 'Offline';
+            }
         }
     }
 
     updatePlayerNames(players) {
-        const whitePlayerName = document.querySelector('.white-player .player-name');
-        const blackPlayerName = document.querySelector('.black-player .player-name');
+        const whitePlayer = document.querySelector('.white-player span');
+        const blackPlayer = document.querySelector('.black-player span');
         
-        if (players.white) {
-            whitePlayerName.textContent = players.white === 'You' ? 'You (White)' : players.white;
+        if (players.white && whitePlayer) {
+            whitePlayer.textContent = players.white === 'You' ? 'You (White)' : players.white;
         }
-        if (players.black) {
-            blackPlayerName.textContent = players.black === 'You' ? 'You (Black)' : players.black;
+        if (players.black && blackPlayer) {
+            blackPlayer.textContent = players.black === 'You' ? 'You (Black)' : players.black;
         }
     }
 
     resetPlayerNames() {
-        const whitePlayerName = document.querySelector('.white-player .player-name');
-        const blackPlayerName = document.querySelector('.black-player .player-name');
+        const whitePlayer = document.querySelector('.white-player span');
+        const blackPlayer = document.querySelector('.black-player span');
         
-        whitePlayerName.textContent = 'White Player';
-        blackPlayerName.textContent = 'Black Player';
+        if (whitePlayer) whitePlayer.textContent = 'White Player';
+        if (blackPlayer) blackPlayer.textContent = 'Black Player';
     }
 
     generateRoomId() {

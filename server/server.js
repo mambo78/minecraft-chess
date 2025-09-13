@@ -318,7 +318,7 @@ app.use((req, res) => {
 
 // Start server
 server.listen(PORT, () => {
-    console.log('🎮 Minecraft Chess Server Started!');
+    console.log('🎮 Mathias Chess Server Started!');
     console.log(`📡 Server running on port ${PORT}`);
     console.log(`🌍 Visit http://localhost:${PORT} to play`);
     console.log('🚀 Ready for multiplayer chess battles!');

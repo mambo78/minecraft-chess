@@ -1,253 +1,223 @@
-// Main game initialization
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize game components
-    const chess = new Chess();
-    const ui = new UI(chess);
-    const multiplayer = new Multiplayer(ui);
+class MathiasChess {
+    constructor() {
+        this.chess = new Chess();
+        this.ui = new ChessUI(this.chess);
+        this.multiplayer = new Multiplayer(this.ui);
+        
+        this.initializeGame();
+        this.bindEvents();
+        
+        console.log('🎮 Mathias Chess initialized successfully!');
+    }
 
-    // Make multiplayer globally available for UI callbacks
-    window.gameMultiplayer = multiplayer;
+    initializeGame() {
+        // Add remote game handling methods to UI
+        this.ui.handleRemoteMove = (fromRow, fromCol, toRow, toCol) => {
+            const success = this.chess.makeMove(fromRow, fromCol, toRow, toCol);
+            if (success) {
+                this.ui.updateDisplay();
+            }
+        };
 
-    // Add multiplayer validation to UI move attempts
-    const originalAttemptMove = ui.attemptMove;
-    ui.attemptMove = function(fromRow, fromCol, toRow, toCol) {
-        // Check if player can make moves in multiplayer
-        if (!multiplayer.canMakeMove()) {
-            ui.showMessage('Wait for your turn!', 'warning');
+        this.ui.handleRemoteNewGame = () => {
+            this.chess.resetGame();
+            this.ui.clearSelection();
+            this.ui.updateDisplay();
+            this.ui.showMessage('Opponent started a new game', 'info');
+        };
+
+        // Override UI move handling to include multiplayer
+        const originalHandleSquareClick = this.ui.handleSquareClick.bind(this.ui);
+        this.ui.handleSquareClick = (row, col) => {
+            // Check if player can make moves in multiplayer
+            if (!this.multiplayer.canMakeMove()) {
+                this.ui.showMessage("It's not your turn!", 'warning');
+                return;
+            }
+
+            const piece = this.chess.getPiece(row, col);
+            
+            // If a square is selected and this is a valid move
+            if (this.ui.selectedSquare) {
+                const possibleMove = this.ui.possibleMoves.find(move => 
+                    move.row === row && move.col === col);
+                
+                if (possibleMove) {
+                    // Make the move
+                    const success = this.chess.makeMove(
+                        this.ui.selectedSquare.row, 
+                        this.ui.selectedSquare.col, 
+                        row, 
+                        col
+                    );
+                    
+                    if (success) {
+                        // Send move to multiplayer if connected
+                        this.multiplayer.sendMove(
+                            this.ui.selectedSquare.row,
+                            this.ui.selectedSquare.col,
+                            row,
+                            col
+                        );
+
+                        this.ui.showMessage('Move made!', 'success');
+                        this.ui.updateDisplay();
+                        
+                        // Check game status
+                        const status = this.chess.gameStatus;
+                        if (status === 'check') {
+                            this.ui.showMessage(`${this.chess.currentPlayer} is in check!`, 'warning');
+                        } else if (status === 'checkmate') {
+                            const winner = this.chess.currentPlayer === 'white' ? 'Black' : 'White';
+                            this.ui.showMessage(`Checkmate! ${winner} wins!`, 'success');
+                        } else if (status === 'stalemate') {
+                            this.ui.showMessage('Stalemate! Game is a draw.', 'info');
+                        }
+                    }
+                }
+                
+                // Clear selection
+                this.ui.clearSelection();
+            }
+            // Select a piece if it belongs to current player
+            else if (piece && piece.color === this.chess.currentPlayer) {
+                this.ui.selectSquare(row, col);
+            }
+        };
+    }
+
+    bindEvents() {
+        // New Game button
+        const newGameBtn = document.getElementById('new-game-btn');
+        if (newGameBtn) {
+            newGameBtn.addEventListener('click', () => {
+                this.newGame();
+            });
+        }
+
+        // Undo Move button
+        const undoBtn = document.getElementById('undo-btn');
+        if (undoBtn) {
+            undoBtn.addEventListener('click', () => {
+                this.undoMove();
+            });
+        }
+
+        // Hint button
+        const hintBtn = document.getElementById('hint-btn');
+        if (hintBtn) {
+            hintBtn.addEventListener('click', () => {
+                this.ui.showHint();
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.ui.clearSelection();
+            } else if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                this.undoMove();
+            } else if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                this.newGame();
+            } else if (e.key === 'h' || e.key === 'H') {
+                this.ui.showHint();
+            }
+        });
+
+        // Window resize handler for responsive design
+        window.addEventListener('resize', () => {
+            // Force redraw to ensure centering
+            this.ui.updateDisplay();
+        });
+
+        // Prevent right-click context menu on game board
+        const boardElement = document.getElementById('chess-board');
+        if (boardElement) {
+            boardElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        }
+
+        // Welcome message
+        setTimeout(() => {
+            this.ui.showMessage('Welcome to Mathias Chess! 🎮', 'success');
+        }, 1000);
+    }
+
+    newGame() {
+        if (this.multiplayer.isConnected && this.multiplayer.currentRoom) {
+            // In multiplayer, send new game request
+            this.multiplayer.sendNewGame();
+            this.ui.showMessage('New game request sent!', 'info');
+        } else {
+            // Local new game
+            this.chess.resetGame();
+            this.ui.clearSelection();
+            this.ui.updateDisplay();
+            this.ui.showMessage('New game started!', 'success');
+        }
+    }
+
+    undoMove() {
+        if (this.multiplayer.isConnected && this.multiplayer.currentRoom) {
+            this.ui.showMessage('Undo not available in multiplayer', 'warning');
             return;
         }
-        
-        // Call original method
-        originalAttemptMove.call(this, fromRow, fromCol, toRow, toCol);
-    };
 
-    // Display welcome message
-    setTimeout(() => {
-        ui.showMessage('Welcome to Mathias Chess! 🎮', 'info');
-    }, 1000);
-
-    // Add some helpful tips
-    setTimeout(() => {
-        ui.showMessage('Click pieces to select them, then click where you want to move!', 'info');
-    }, 4000);
-
-    // Game statistics tracking
-    let gameStats = {
-        gamesPlayed: 0,
-        movesPlayed: 0,
-        hintsUsed: 0
-    };
-
-    // Load stats from localStorage if available
-    const savedStats = localStorage.getItem('minecraftChessStats');
-    if (savedStats) {
-        gameStats = { ...gameStats, ...JSON.parse(savedStats) };
-    }
-
-    // Override methods to track statistics
-    const originalMakeMove = chess.makeMove;
-    chess.makeMove = function(fromRow, fromCol, toRow, toCol) {
-        const result = originalMakeMove.call(this, fromRow, fromCol, toRow, toCol);
-        if (result) {
-            gameStats.movesPlayed++;
-            saveStats();
-        }
-        return result;
-    };
-
-    const originalResetGame = chess.resetGame;
-    chess.resetGame = function() {
-        originalResetGame.call(this);
-        gameStats.gamesPlayed++;
-        saveStats();
-    };
-
-    const originalShowHint = ui.showHint;
-    ui.showHint = function() {
-        originalShowHint.call(this);
-        gameStats.hintsUsed++;
-        saveStats();
-    };
-
-    function saveStats() {
-        localStorage.setItem('minecraftChessStats', JSON.stringify(gameStats));
-    }
-
-    // Add stats display (can be expanded later)
-    function showStats() {
-        const message = `Games: ${gameStats.gamesPlayed} | Moves: ${gameStats.movesPlayed} | Hints: ${gameStats.hintsUsed}`;
-        ui.showMessage(message, 'info');
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        // Ctrl+S to show stats
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            showStats();
-        }
-        
-        // Ctrl+N for new game
-        if (e.ctrlKey && e.key === 'n') {
-            e.preventDefault();
-            ui.newGame();
-        }
-        
-        // Ctrl+H for hint
-        if (e.ctrlKey && e.key === 'h') {
-            e.preventDefault();
-            ui.showHint();
-        }
-
-        // F1 for help
-        if (e.key === 'F1') {
-            e.preventDefault();
-            showHelp();
-        }
-    });
-
-    function showHelp() {
-        const helpText = `
-🎮 Minecraft Chess Help 🎮
-
-Controls:
-• Click pieces to select them
-• Click empty squares or opponent pieces to move
-• ESC - Clear selection
-• Ctrl+Z - Undo move
-• Ctrl+N - New game
-• Ctrl+H - Show hint
-• Ctrl+S - Show statistics
-• F1 - Show this help
-
-Multiplayer:
-• Click "Connect to Server" to go online
-• Join a room to play with others
-• Share room ID with friends to play together
-
-Pieces (Minecraft themed):
-• King: 🤴/👹 • Queen: 👸/🧟‍♀️ • Rook: 🏰/🗿
-• Bishop: 🧙/🧙‍♂️ • Knight: 🐴/🐷 • Pawn: 👤/🧟
-
-Have fun learning chess! 🏆
-        `;
-        
-        alert(helpText);
-    }
-
-    // Performance optimization: throttle UI updates
-    let updateThrottle = false;
-    const originalUpdateDisplay = ui.updateDisplay;
-    ui.updateDisplay = function() {
-        if (!updateThrottle) {
-            updateThrottle = true;
-            setTimeout(() => {
-                originalUpdateDisplay.call(this);
-                updateThrottle = false;
-            }, 16); // ~60fps
-        }
-    };
-
-    // Add visibility change handler to pause/resume animations
-    document.addEventListener('visibilitychange', () => {
-        const pieces = document.querySelectorAll('.piece');
-        if (document.hidden) {
-            pieces.forEach(piece => piece.style.animationPlayState = 'paused');
+        if (this.chess.undoLastMove()) {
+            this.ui.clearSelection();
+            this.ui.updateDisplay();
+            this.ui.showMessage('Move undone', 'info');
         } else {
-            pieces.forEach(piece => piece.style.animationPlayState = 'running');
-        }
-    });
-
-    // Add touch support for mobile devices
-    let touchStartPos = null;
-    
-    document.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-            const touch = e.touches[0];
-            touchStartPos = { x: touch.clientX, y: touch.clientY };
-        }
-    });
-
-    document.addEventListener('touchend', (e) => {
-        if (touchStartPos && e.changedTouches.length === 1) {
-            const touch = e.changedTouches[0];
-            const deltaX = Math.abs(touch.clientX - touchStartPos.x);
-            const deltaY = Math.abs(touch.clientY - touchStartPos.y);
-            
-            // If touch didn't move much, treat as a click
-            if (deltaX < 10 && deltaY < 10) {
-                const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (element) {
-                    element.click();
-                }
-            }
-        }
-        touchStartPos = null;
-    });
-
-    // Prevent zooming on double tap for mobile
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e) => {
-        const now = (new Date()).getTime();
-        if (now - lastTouchEnd <= 300) {
-            e.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, false);
-
-    // Add sound effects (placeholder - would need actual sound files)
-    function playSound(soundName) {
-        // This would play actual Minecraft sounds if audio files were available
-        // For now, just log the sound that would be played
-        if (console && console.log) {
-            console.log(`🔊 Playing sound: ${soundName}`);
+            this.ui.showMessage('No moves to undo', 'warning');
         }
     }
 
-    // Hook into game events for sound effects
-    const originalHandleSquareClick = ui.handleSquareClick;
-    ui.handleSquareClick = function(row, col) {
-        const clickedPiece = this.chess.getPiece(row, col);
-        
-        if (!this.selectedSquare && clickedPiece && clickedPiece.color === this.chess.currentPlayer) {
-            playSound('minecraft:block.wood.place');
-        } else if (this.selectedSquare) {
-            const selectedPiece = this.chess.getPiece(this.selectedSquare.row, this.selectedSquare.col);
-            if (selectedPiece && this.chess.isValidMove(this.selectedSquare.row, this.selectedSquare.col, row, col)) {
-                if (clickedPiece) {
-                    playSound('minecraft:entity.generic.explode'); // Capture
-                } else {
-                    playSound('minecraft:block.grass.step'); // Regular move
-                }
-            }
-        }
-        
-        originalHandleSquareClick.call(this, row, col);
-    };
-
-    // Log successful initialization
-    console.log('🎮 Minecraft Chess initialized successfully!');
-    console.log('📊 Game statistics tracking enabled');
-    console.log('🌐 Multiplayer support ready');
-    console.log('🎵 Sound system initialized (placeholder)');
-    console.log('📱 Touch controls enabled');
-    console.log('⌨️ Keyboard shortcuts enabled');
-    
-    // Show initial game state
-    ui.updateDisplay();
-});
-
-// Global error handler
-window.addEventListener('error', (e) => {
-    console.error('Game Error:', e.error);
-    
-    // Try to show user-friendly error message
-    if (window.gameUI) {
-        window.gameUI.showMessage('Something went wrong! Please refresh the page.', 'error');
+    getGameInfo() {
+        const multiplayerInfo = this.multiplayer.getCurrentPlayerInfo();
+        return {
+            currentPlayer: this.chess.currentPlayer,
+            gameStatus: this.chess.gameStatus,
+            moveCount: this.chess.gameHistory.length,
+            capturedPieces: this.chess.capturedPieces,
+            multiplayer: multiplayerInfo
+        };
     }
-});
 
-// Prevent context menu on right-click for better game experience
-document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
+    // Development helpers (remove in production)
+    debugMode() {
+        console.log('🐛 Debug Mode Activated');
+        window.chess = this.chess;
+        window.ui = this.ui;
+        window.multiplayer = this.multiplayer;
+        window.game = this;
+        
+        this.ui.showMessage('Debug mode activated! Check console.', 'info');
+    }
+}
+
+// Initialize the game when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        window.mathiasChess = new MathiasChess();
+        
+        // Enable debug mode with Ctrl+D
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                window.mathiasChess.debugMode();
+            }
+        });
+    } catch (error) {
+        console.error('Failed to initialize Mathias Chess:', error);
+        
+        // Show error message to user
+        const messageElement = document.getElementById('game-message');
+        if (messageElement) {
+            messageElement.textContent = 'Failed to load game. Please refresh the page.';
+            messageElement.className = 'game-message error show';
+        }
+    }
 });

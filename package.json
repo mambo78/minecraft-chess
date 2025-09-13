@@ -1,7 +1,7 @@
 {
-  "name": "minecraft-chess",
-  "version": "1.0.0",
-  "description": "A Minecraft-themed chess game for teaching and online play",
+  "name": "mathias-chess",
+  "version": "2.0.0",
+  "description": "A Minecraft-themed chess game with multiplayer support",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
@@ -11,22 +11,30 @@
   "keywords": [
     "chess",
     "minecraft",
+    "multiplayer",
     "game",
-    "education",
-    "multiplayer"
+    "nodejs",
+    "socket.io"
   ],
-  "author": "Your Name",
+  "author": "Mathias",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
-    "cors": "^2.8.5",
-    "path": "^0.12.7"
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
   "engines": {
-    "node": ">=14.0.0"
-  }
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mathias/chess.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mathias/chess/issues"
+  },
+  "homepage": "https://github.com/mathias/chess#readme"
 }

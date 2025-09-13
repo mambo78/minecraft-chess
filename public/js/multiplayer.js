@@ -45,6 +45,11 @@ class Multiplayer {
 
     connect() {
         try {
+            // Check if Socket.IO is available
+            if (typeof io === 'undefined') {
+                this.ui.showMessage('Multiplayer requires server setup. Playing offline only.', 'warning');
+                return;
+            }
             // Initialize Socket.IO connection
             this.socket = io();
             

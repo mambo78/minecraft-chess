@@ -1,6 +1,6 @@
-# 🎮 Minecraft Chess
+# 🎮 Mathias Chess
 
-A fun, educational chess game with a Minecraft theme designed to help teach chess to kids while providing an engaging online multiplayer experience!
+A fun, educational chess game with a Minecraft theme designed to help teach chess to kids while providing an engaging online multiplayer experience! Personalized for Mathias!
 
 ![Minecraft Chess](https://img.shields.io/badge/Game-Minecraft%20Chess-brightgreen?style=for-the-badge&logo=minecraft)
 ![Status](https://img.shields.io/badge/Status-Ready%20to%20Play-success?style=for-the-badge)

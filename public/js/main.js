@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Display welcome message
     setTimeout(() => {
-        ui.showMessage('Welcome to Minecraft Chess! 🎮', 'info');
+        ui.showMessage('Welcome to Mathias Chess! 🎮', 'info');
     }, 1000);
 
     // Add some helpful tips

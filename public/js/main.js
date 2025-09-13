@@ -36,9 +36,15 @@ class MathiasChess {
         // Override UI move handling to include multiplayer
         const originalHandleSquareClick = this.ui.handleSquareClick.bind(this.ui);
         this.ui.handleSquareClick = (row, col) => {
-            // Check if player can make moves in multiplayer
-            if (!this.multiplayer.canMakeMove()) {
+            // Check if player can make moves in multiplayer (but not in AI mode)
+            if (!this.isAiGame && !this.multiplayer.canMakeMove()) {
                 this.ui.showMessage("It's not your turn!", 'warning');
+                return;
+            }
+            
+            // In AI mode, only allow white (human) player to move
+            if (this.isAiGame && this.chess.currentPlayer === 'black') {
+                this.ui.showMessage("Wait for AI to move!", 'warning');
                 return;
             }
 
@@ -83,7 +89,11 @@ class MathiasChess {
                         
                         // Handle AI move if in AI mode
                         if (this.isAiGame && this.chess.currentPlayer === 'black' && status === 'active') {
-                            setTimeout(() => this.makeAiMove(), 100);
+                            console.log('🤖 Triggering AI move...');
+                            setTimeout(() => {
+                                console.log('🤖 Making AI move now...');
+                                this.makeAiMove();
+                            }, 100);
                         }
                     }
                 }
@@ -244,8 +254,10 @@ class MathiasChess {
     }
 
     setGameMode(mode) {
+        console.log(`🎮 Setting game mode to: ${mode}`);
         this.gameMode = mode;
         this.isAiGame = (mode === 'ai');
+        console.log(`🤖 AI game mode: ${this.isAiGame}`);
         
         const vsHumanBtn = document.getElementById('vs-human-btn');
         const vsAiBtn = document.getElementById('vs-ai-btn');
@@ -275,17 +287,29 @@ class MathiasChess {
         // Start new game in the new mode
         this.newGame();
         
+        // If AI mode and it's black's turn after reset, trigger AI move
+        if (this.isAiGame && this.chess.currentPlayer === 'black') {
+            setTimeout(() => this.makeAiMove(), 500);
+        }
+        
         const modeText = mode === 'ai' ? 'vs Computer' : 'vs Human';
         this.ui.showMessage(`Game mode: ${modeText}`, 'success');
     }
     
     async makeAiMove() {
-        if (!this.isAiGame || this.chess.currentPlayer !== 'black') return;
+        console.log(`🤖 makeAiMove called - isAiGame: ${this.isAiGame}, currentPlayer: ${this.chess.currentPlayer}`);
+        
+        if (!this.isAiGame || this.chess.currentPlayer !== 'black') {
+            console.log('🤖 Skipping AI move - not AI game or not black turn');
+            return;
+        }
         
         try {
+            console.log('🤖 AI is thinking...');
             const aiMove = await this.ai.makeMove();
             
             if (aiMove) {
+                console.log(`🤖 AI chose move: ${JSON.stringify(aiMove)}`);
                 const success = this.chess.makeMove(
                     aiMove.from.row,
                     aiMove.from.col,
@@ -294,6 +318,7 @@ class MathiasChess {
                 );
                 
                 if (success) {
+                    console.log('🤖 AI move successful, updating display');
                     this.ui.updateDisplay();
                     
                     // Check game status after AI move
@@ -305,7 +330,11 @@ class MathiasChess {
                     } else if (status === 'stalemate') {
                         this.ui.showMessage('Stalemate! Game is a draw.', 'info');
                     }
+                } else {
+                    console.log('🤖 AI move failed!');
                 }
+            } else {
+                console.log('🤖 No AI move found');
             }
         } catch (error) {
             console.error('AI move error:', error);

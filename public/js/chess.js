@@ -10,7 +10,6 @@ class Chess {
             white: { kingside: true, queenside: true },
             black: { kingside: true, queenside: true }
         };
-        this.lastMove = null;
     }
 
     initializeBoard() {
@@ -76,7 +75,7 @@ class Chess {
             case 'queen':
                 return (rowDiff === 0 || colDiff === 0 || rowDiff === colDiff) && this.isPathClear(fromRow, fromCol, toRow, toCol);
             case 'king':
-                return this.isKingMoveValid(piece, fromRow, fromCol, toRow, toCol);
+                return rowDiff <= 1 && colDiff <= 1;
             case 'knight':
                 return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
             default:
@@ -104,79 +103,6 @@ class Chess {
         }
 
         return false;
-    }
-    
-    isKingMoveValid(piece, fromRow, fromCol, toRow, toCol) {
-        const rowDiff = Math.abs(toRow - fromRow);
-        const colDiff = Math.abs(toCol - fromCol);
-        
-        // Normal king move (1 square in any direction)
-        if (rowDiff <= 1 && colDiff <= 1) {
-            return true;
-        }
-        
-        // Castling move (king moves 2 squares horizontally)
-        if (rowDiff === 0 && colDiff === 2) {
-            return this.isCastlingValid(piece, fromRow, fromCol, toRow, toCol);
-        }
-        
-        return false;
-    }
-    
-    isCastlingValid(piece, fromRow, fromCol, toRow, toCol) {
-        // Must be on the back rank
-        const backRank = piece.color === 'white' ? 7 : 0;
-        if (fromRow !== backRank || toRow !== backRank) return false;
-        
-        // King must be in starting position
-        if (fromCol !== 4) return false;
-        
-        // King must not be in check
-        if (this.isKingInCheck(piece.color)) return false;
-        
-        // Determine if kingside or queenside castling
-        const isKingside = toCol === 6;
-        const isQueenside = toCol === 2;
-        
-        if (!isKingside && !isQueenside) return false;
-        
-        // Check castling rights
-        const rights = this.castlingRights[piece.color];
-        if (isKingside && !rights.kingside) return false;
-        if (isQueenside && !rights.queenside) return false;
-        
-        // Check that the rook is in the correct position
-        const rookCol = isKingside ? 7 : 0;
-        const rook = this.getPiece(backRank, rookCol);
-        if (!rook || rook.type !== 'rook' || rook.color !== piece.color) return false;
-        
-        // Check that the path is clear
-        const startCol = Math.min(fromCol, rookCol);
-        const endCol = Math.max(fromCol, rookCol);
-        
-        for (let col = startCol + 1; col < endCol; col++) {
-            if (this.getPiece(backRank, col)) return false;
-        }
-        
-        // Check that the king doesn't pass through check
-        const direction = isKingside ? 1 : -1;
-        for (let i = 1; i <= 2; i++) {
-            const testCol = fromCol + (i * direction);
-            
-            // Temporarily move king to test square
-            this.setPiece(backRank, testCol, piece);
-            this.setPiece(fromRow, fromCol, null);
-            
-            const inCheck = this.isKingInCheck(piece.color);
-            
-            // Restore position
-            this.setPiece(fromRow, fromCol, piece);
-            this.setPiece(backRank, testCol, null);
-            
-            if (inCheck) return false;
-        }
-        
-        return true;
     }
 
     isPathClear(fromRow, fromCol, toRow, toCol) {
@@ -227,33 +153,14 @@ class Chess {
             this.capturedPieces[capturedPiece.color].push(capturedPiece);
         }
 
-        // Handle castling
-        if (piece.type === 'king' && Math.abs(toCol - fromCol) === 2) {
-            const isKingside = toCol === 6;
-            const rookFromCol = isKingside ? 7 : 0;
-            const rookToCol = isKingside ? 5 : 3;
-            const rook = this.getPiece(fromRow, rookFromCol);
-            
-            // Move rook
-            this.setPiece(toRow, rookToCol, rook);
-            this.setPiece(fromRow, rookFromCol, null);
-            
-            move.castling = { 
-                type: isKingside ? 'kingside' : 'queenside',
-                rookFrom: { row: fromRow, col: rookFromCol },
-                rookTo: { row: toRow, col: rookToCol }
-            };
-        }
-        
         // Move the piece
         this.setPiece(toRow, toCol, piece);
         this.setPiece(fromRow, fromCol, null);
 
-        // Handle pawn promotion - mark for promotion but don't auto-promote
+        // Handle pawn promotion
         if (piece.type === 'pawn' && (toRow === 0 || toRow === 7)) {
-            move.needsPromotion = true;
-            move.promotionSquare = { row: toRow, col: toCol };
-            // Don't auto-promote, wait for user choice
+            this.setPiece(toRow, toCol, { type: 'queen', color: piece.color });
+            move.promotion = 'queen';
         }
 
         // Update en passant target
@@ -273,7 +180,6 @@ class Chess {
         }
 
         this.gameHistory.push(move);
-        this.lastMove = move; // Track last move for highlighting
         this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
 
         // Check game status
@@ -404,13 +310,6 @@ class Chess {
             this.setPiece(lastMove.to.row, lastMove.to.col, null);
         }
 
-        // Handle castling undo
-        if (lastMove.castling) {
-            const rookPiece = this.getPiece(lastMove.castling.rookTo.row, lastMove.castling.rookTo.col);
-            this.setPiece(lastMove.castling.rookFrom.row, lastMove.castling.rookFrom.col, rookPiece);
-            this.setPiece(lastMove.castling.rookTo.row, lastMove.castling.rookTo.col, null);
-        }
-        
         // Handle en passant
         if (lastMove.enPassantCapture) {
             const captureRow = lastMove.piece.color === 'white' ? lastMove.to.row + 1 : lastMove.to.row - 1;
@@ -420,9 +319,6 @@ class Chess {
         // Restore en passant target
         this.enPassantTarget = lastMove.enPassantTarget;
 
-        // Update last move (now it's the previous move)
-        this.lastMove = this.gameHistory.length > 0 ? this.gameHistory[this.gameHistory.length - 1] : null;
-        
         // Switch back the current player
         this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
 
@@ -454,22 +350,5 @@ class Chess {
             white: { kingside: true, queenside: true },
             black: { kingside: true, queenside: true }
         };
-        this.lastMove = null;
-    }
-    
-    promotePawn(pieceType) {
-        if (!this.lastMove || !this.lastMove.needsPromotion) return false;
-        
-        const square = this.lastMove.promotionSquare;
-        const pawn = this.getPiece(square.row, square.col);
-        
-        if (pawn && pawn.type === 'pawn') {
-            this.setPiece(square.row, square.col, { type: pieceType, color: pawn.color });
-            this.lastMove.promotion = pieceType;
-            this.lastMove.needsPromotion = false;
-            return true;
-        }
-        
-        return false;
     }
 }

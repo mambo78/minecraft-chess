@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 # minecraft-chess
 a Minecraft themed chess for kids
+Originally it was suposed to be only minecraft, but at the moment I'm trying to use other themes
 =======
 # 🎮 Minecraft Chess
 

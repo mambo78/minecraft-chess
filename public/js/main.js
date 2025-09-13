@@ -3,9 +3,13 @@ class MathiasChess {
         this.chess = new Chess();
         this.ui = new ChessUI(this.chess);
         this.multiplayer = new Multiplayer(this.ui);
+        this.themes = new ChessThemes();
         
         this.initializeGame();
         this.bindEvents();
+        
+        // Apply initial theme
+        this.themes.applyTheme();
         
         console.log('🎮 Mathias Chess initialized successfully!');
     }
@@ -108,6 +112,27 @@ class MathiasChess {
         if (hintBtn) {
             hintBtn.addEventListener('click', () => {
                 this.ui.showHint();
+            });
+        }
+
+        // Theme selector
+        const themeSelector = document.getElementById('theme-selector');
+        if (themeSelector) {
+            themeSelector.addEventListener('change', (e) => {
+                this.themes.setTheme(e.target.value);
+                this.ui.showMessage(`Theme changed to ${this.themes.getCurrentTheme().name}! 🎨`, 'success');
+            });
+        }
+
+        // Random theme button
+        const randomThemeBtn = document.getElementById('random-theme-btn');
+        if (randomThemeBtn) {
+            randomThemeBtn.addEventListener('click', () => {
+                const themes = this.themes.getAvailableThemes();
+                const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+                this.themes.setTheme(randomTheme.id);
+                themeSelector.value = randomTheme.id;
+                this.ui.showMessage(`Random theme: ${randomTheme.name}! 🎲`, 'success');
             });
         }
 

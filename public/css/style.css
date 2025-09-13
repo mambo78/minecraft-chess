@@ -342,7 +342,7 @@ body {
     box-shadow: none;
 }
 
-.room-input {
+.room-input, .theme-selector {
     font-family: 'VT323', monospace;
     font-size: 1.2rem;
     padding: 10px;
@@ -352,6 +352,22 @@ body {
     background: var(--minecraft-white);
     color: var(--minecraft-black);
     width: 100%;
+}
+
+.theme-selector {
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.theme-selector:hover {
+    border-color: var(--minecraft-gold);
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+}
+
+.theme-selector:focus {
+    outline: none;
+    border-color: var(--minecraft-gold);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .status {

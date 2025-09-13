@@ -76,6 +76,20 @@
                     </div>
 
                     <div class="section">
+                        <h3>🎨 Themes</h3>
+                        <select id="theme-selector" class="theme-selector">
+                            <option value="classic">Classic Chess</option>
+                            <option value="minecraft">🎮 Minecraft</option>
+                            <option value="mario">🍄 Mario Bros</option>
+                            <option value="sonic">💨 Sonic</option>
+                            <option value="pokemon">⚡ Pokémon</option>
+                            <option value="space">🚀 Space</option>
+                            <option value="medieval">⚔️ Medieval</option>
+                        </select>
+                        <button id="random-theme-btn" class="btn">🎲 Random Theme</button>
+                    </div>
+                    
+                    <div class="section">
                         <h3>Multiplayer</h3>
                         <div id="connection-status" class="status offline">Offline</div>
                         <button id="connect-btn" class="btn">Connect</button>
@@ -100,6 +114,7 @@
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
+    <script src="js/themes.js"></script>
     <script src="js/chess.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/multiplayer.js"></script>

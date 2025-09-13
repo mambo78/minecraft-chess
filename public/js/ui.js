@@ -12,19 +12,19 @@ class UI {
         this.pieceSymbols = {
             white: {
                 king: '🤴',
-                queen: '👑',
+                queen: '👸',
                 rook: '🏰',
-                bishop: '⚡',
+                bishop: '🧙',
                 knight: '🐴',
-                pawn: '⚔️'
+                pawn: '👤'
             },
             black: {
                 king: '👹',
-                queen: '🖤',
+                queen: '🧟‍♀️',
                 rook: '🗿',
-                bishop: '🔥',
+                bishop: '🧙‍♂️',
                 knight: '🐷',
-                pawn: '🛡️'
+                pawn: '🧟'
             }
         };
 

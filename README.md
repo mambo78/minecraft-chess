@@ -49,7 +49,7 @@ A fun, educational chess game with a Minecraft theme designed to help teach ches
 1. **Clone or download this project**
    ```bash
    git clone <repository-url>
-   cd minecraft-chess
+   cd minecraft-chess-new
    ```
 
 2. **Install dependencies**
@@ -84,7 +84,7 @@ This game follows standard chess rules:
 ### Game Controls
 - **🖱️ Mouse/Touch**: Click to select pieces and make moves
 - **⌨️ Keyboard Shortcuts**:
-  - `ESC` - Clear current selection
+  - `ESC` - Clear selection
   - `Ctrl+Z` - Undo last move
   - `Ctrl+N` - Start new game
   - `Ctrl+H` - Show hint
@@ -102,7 +102,7 @@ This game follows standard chess rules:
 ## 📁 Project Structure
 
 ```
-minecraft-chess/
+minecraft-chess-new/
 ├── 📁 public/                 # Client-side files
 │   ├── 📁 css/
 │   │   └── style.css         # Minecraft-themed styling

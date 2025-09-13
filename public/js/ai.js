@@ -1,4 +1,6 @@
 // Chess AI System
+'use strict';
+
 class ChessAI {
     constructor(chess) {
         this.chess = chess;
@@ -136,27 +138,34 @@ class ChessAI {
         
         if (allMoves.length === 0) return null;
         
-        // Avoid repetitive moves by filtering out moves that repeat the last move
+        // Avoid repetitive moves - be more aggressive about this
         let filteredMoves = allMoves;
-        if (this.chess.gameHistory.length >= 2) {
-            const lastMove = this.chess.gameHistory[this.chess.gameHistory.length - 1];
-            const secondLastMove = this.chess.gameHistory[this.chess.gameHistory.length - 2];
+        
+        // Check last 4 moves to detect repetition patterns
+        if (this.chess.gameHistory.length >= 4) {
+            const recentMoves = this.chess.gameHistory.slice(-4);
+            const lastAiMove = recentMoves[recentMoves.length - 1]; // AI's last move
+            const secondLastAiMove = recentMoves[recentMoves.length - 3]; // AI's move before that
             
-            // If the last two moves were the same piece going back and forth
-            if (lastMove && secondLastMove && 
-                lastMove.from.row === secondLastMove.to.row && 
-                lastMove.from.col === secondLastMove.to.col &&
-                lastMove.to.row === secondLastMove.from.row && 
-                lastMove.to.col === secondLastMove.from.col) {
+            // If AI is repeating the same move pattern
+            if (lastAiMove && secondLastAiMove &&
+                lastAiMove.from.row === secondLastAiMove.from.row &&
+                lastAiMove.from.col === secondLastAiMove.from.col &&
+                lastAiMove.to.row === secondLastAiMove.to.row &&
+                lastAiMove.to.col === secondLastAiMove.to.col) {
                 
-                // Filter out moves that would repeat this pattern
+                console.log('AI detected move repetition, avoiding repeat moves');
+                
+                // Filter out the repeating move
                 filteredMoves = allMoves.filter(move => 
-                    !(move.from.row === lastMove.to.row && 
-                      move.from.col === lastMove.to.col &&
-                      move.to.row === lastMove.from.row && 
-                      move.to.col === lastMove.from.col));
+                    !(move.from.row === lastAiMove.from.row && 
+                      move.from.col === lastAiMove.from.col &&
+                      move.to.row === lastAiMove.to.row && 
+                      move.to.col === lastAiMove.to.col));
                 
+                // If that leaves us with moves, use them
                 if (filteredMoves.length > 0) {
+                    console.log(`AI filtered out repetitive move, ${filteredMoves.length} alternatives available`);
                     allMoves = filteredMoves;
                 }
             }
@@ -217,13 +226,14 @@ class ChessAI {
             for (const move of moves) {
                 // Make move
                 const originalPiece = this.chess.getPiece(move.to.row, move.to.col);
-                this.chess.setPiece(move.to.row, move.to.col, move.piece);
+                const movingPiece = move.piece;
+                this.chess.setPiece(move.to.row, move.to.col, movingPiece);
                 this.chess.setPiece(move.from.row, move.from.col, null);
                 
                 const evaluation = this.minimax(depth - 1, alpha, beta, false);
                 
                 // Undo move
-                this.chess.setPiece(move.from.row, move.from.col, move.piece);
+                this.chess.setPiece(move.from.row, move.from.col, movingPiece);
                 this.chess.setPiece(move.to.row, move.to.col, originalPiece);
                 
                 maxEval = Math.max(maxEval, evaluation);
@@ -237,13 +247,14 @@ class ChessAI {
             for (const move of moves) {
                 // Make move
                 const originalPiece = this.chess.getPiece(move.to.row, move.to.col);
-                this.chess.setPiece(move.to.row, move.to.col, move.piece);
+                const movingPiece = move.piece;
+                this.chess.setPiece(move.to.row, move.to.col, movingPiece);
                 this.chess.setPiece(move.from.row, move.from.col, null);
                 
                 const evaluation = this.minimax(depth - 1, alpha, beta, true);
                 
                 // Undo move
-                this.chess.setPiece(move.from.row, move.from.col, move.piece);
+                this.chess.setPiece(move.from.row, move.from.col, movingPiece);
                 this.chess.setPiece(move.to.row, move.to.col, originalPiece);
                 
                 minEval = Math.min(minEval, evaluation);
@@ -258,11 +269,18 @@ class ChessAI {
     evaluatePosition() {
         let score = 0;
         
-        // Heavy penalty for being in check
-        if (this.chess.isKingInCheck('black')) {
+        // Heavy penalty for being in check - debug this
+        const blackInCheck = this.chess.isKingInCheck('black');
+        const whiteInCheck = this.chess.isKingInCheck('white');
+        
+        console.log(`AI Eval: Black in check: ${blackInCheck}, White in check: ${whiteInCheck}`);
+        
+        if (blackInCheck) {
+            console.log('AI applying -5000 penalty for being in check');
             score -= 5000; // Massive penalty
         }
-        if (this.chess.isKingInCheck('white')) {
+        if (whiteInCheck) {
+            console.log('AI applying +5000 bonus for opponent in check');
             score += 5000; // Bonus if opponent in check
         }
         

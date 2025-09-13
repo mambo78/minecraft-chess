@@ -4,16 +4,24 @@ class MathiasChess {
         this.ui = new ChessUI(this.chess);
         this.multiplayer = new Multiplayer(this.ui);
         this.themes = new ChessThemes();
-        this.ai = new ChessAI(this.chess);
+        
+        // Initialize both engines - Stockfish as primary, custom AI as fallback
+        this.stockfishEngine = new StockfishEngine();
+        this.ai = new ChessAI(this.chess); // Keep as fallback
+        
         this.gameMode = 'human'; // 'human' or 'ai'
         this.isAiGame = false;
+        this.usingStockfish = true;
         
         this.initializeGame();
         
-        // Apply initial theme first
-        this.themes.applyTheme();
-        
         this.bindEvents();
+        
+        // Apply initial theme after UI is fully initialized
+        setTimeout(() => {
+            this.themes.applyTheme();
+            console.log('🎨 Theme applied:', this.themes.currentTheme);
+        }, 50);
         
         console.log('🎮 Mathias Chess initialized successfully!');
     }
@@ -34,7 +42,7 @@ class MathiasChess {
             this.ui.showMessage('Opponent started a new game', 'info');
         };
 
-        // Override UI move handling to include multiplayer
+        // Override UI move handling to add AI and multiplayer checks
         const originalHandleSquareClick = this.ui.handleSquareClick.bind(this.ui);
         this.ui.handleSquareClick = (row, col) => {
             // Check if player can make moves in multiplayer (but not in AI mode)
@@ -48,63 +56,19 @@ class MathiasChess {
                 this.ui.showMessage("Wait for AI to move!", 'warning');
                 return;
             }
-
-            const piece = this.chess.getPiece(row, col);
             
-            // If a square is selected and this is a valid move
-            if (this.ui.selectedSquare) {
-                const possibleMove = this.ui.possibleMoves.find(move => 
-                    move.row === row && move.col === col);
-                
-                if (possibleMove) {
-                    // Make the move
-                    const success = this.chess.makeMove(
-                        this.ui.selectedSquare.row, 
-                        this.ui.selectedSquare.col, 
-                        row, 
-                        col
-                    );
-                    
-                    if (success) {
-                        // Send move to multiplayer if connected
-                        this.multiplayer.sendMove(
-                            this.ui.selectedSquare.row,
-                            this.ui.selectedSquare.col,
-                            row,
-                            col
-                        );
-
-                        this.ui.showMessage('Move made!', 'success');
-                        this.ui.updateDisplay();
-                        
-                        // Check game status
-                        const status = this.chess.gameStatus;
-                        if (status === 'check') {
-                            this.ui.showMessage(`${this.chess.currentPlayer} is in check!`, 'warning');
-                        } else if (status === 'checkmate') {
-                            const winner = this.chess.currentPlayer === 'white' ? 'Black' : 'White';
-                            this.ui.showMessage(`Checkmate! ${winner} wins!`, 'success');
-                        } else if (status === 'stalemate') {
-                            this.ui.showMessage('Stalemate! Game is a draw.', 'info');
-                        }
-                        
-                        // Handle AI move if in AI mode
-                        if (this.isAiGame && this.chess.currentPlayer === 'black' && status === 'active') {
-                            console.log('🤖 Triggering AI move...');
-                            setTimeout(() => {
-                                console.log('🤖 Making AI move now...');
-                                this.makeAiMove();
-                            }, 100);
-                        }
-                    }
-                }
-                
-                // Clear selection
-                this.ui.clearSelection();
-            }
-            // Select a piece if it belongs to current player
-            else if (piece && piece.color === this.chess.currentPlayer) {
-                this.ui.selectSquare(row, col);
+            // Call the original UI method which handles all the game logic
+            originalHandleSquareClick(row, col);
+            
+            // Send multiplayer move if connected (after the move is made)
+            if (!this.isAiGame && this.chess.gameHistory.length > 0) {
+                const lastMove = this.chess.gameHistory[this.chess.gameHistory.length - 1];
+                this.multiplayer.sendMove(
+                    lastMove.from.row,
+                    lastMove.from.col,
+                    lastMove.to.row,
+                    lastMove.to.col
+                );
             }
         };
     }
@@ -138,8 +102,15 @@ class MathiasChess {
         const themeSelector = document.getElementById('theme-selector');
         if (themeSelector) {
             themeSelector.addEventListener('change', (e) => {
-                this.themes.setTheme(e.target.value);
-                this.ui.showMessage(`Theme changed to ${this.themes.getCurrentTheme().name}! 🎨`, 'success');
+                console.log('🎨 Changing theme to:', e.target.value);
+                const success = this.themes.setTheme(e.target.value);
+                if (success) {
+                    this.ui.showMessage(`Theme changed to ${this.themes.getCurrentTheme().name}! \ud83c\udfa8`, 'success');
+                    console.log('🎨 Theme change successful');
+                } else {
+                    this.ui.showMessage('Failed to change theme', 'error');
+                    console.error('🎨 Theme change failed');
+                }
             });
         }
 
@@ -177,9 +148,17 @@ class MathiasChess {
         const aiDifficultySelector = document.getElementById('ai-difficulty');
         if (aiDifficultySelector) {
             aiDifficultySelector.addEventListener('change', (e) => {
-                this.ai.setDifficulty(e.target.value);
+                const difficulty = e.target.value;
+                
+                // Set difficulty for both engines
+                this.stockfishEngine.setDifficulty(difficulty);
+                this.ai.setDifficulty(difficulty);
+                
                 this.updateAiInfo();
-                this.ui.showMessage(`AI difficulty: ${this.ai.getDifficultyInfo().name}`, 'info');
+                
+                const engineName = this.stockfishEngine.isReady ? 'Stockfish' : 'Custom AI';
+                const diffInfo = this.stockfishEngine.getDifficultyInfo();
+                this.ui.showMessage(`${engineName} difficulty: ${diffInfo.name}`, 'info');
             });
         }
         
@@ -306,11 +285,30 @@ class MathiasChess {
         }
         
         try {
-            console.log('🤖 AI is thinking...');
-            const aiMove = await this.ai.makeMove();
+            const engineName = this.stockfishEngine.isReady ? 'Stockfish' : 'Custom AI';
+            console.log(`🤖 ${engineName} is thinking...`);
+            
+            // Show thinking indicator
+            this.ui.showMessage(`🤖 ${engineName} is thinking...`, 'info');
+            
+            let aiMove = null;
+            
+            // Try Stockfish first
+            if (this.stockfishEngine.isReady) {
+                const fenPosition = this.stockfishEngine.positionToFEN(this.chess);
+                console.log('🤖 Current FEN position:', fenPosition);
+                aiMove = await this.stockfishEngine.makeMove(fenPosition);
+            }
+            
+            // Fallback to custom AI if Stockfish fails
+            if (!aiMove && this.ai) {
+                console.log('🤖 Falling back to custom AI');
+                aiMove = await this.ai.makeMove();
+            }
             
             if (aiMove) {
-                console.log(`🤖 AI chose move: ${JSON.stringify(aiMove)}`);
+                console.log(`🤖 ${engineName} chose move:`, JSON.stringify(aiMove));
+                
                 const success = this.chess.makeMove(
                     aiMove.from.row,
                     aiMove.from.col,
@@ -321,11 +319,12 @@ class MathiasChess {
                 if (success) {
                     console.log('🤖 AI move successful, updating display');
                     
-                    // Handle AI pawn promotion (auto-promote to queen)
+                    // Handle AI pawn promotion
                     const lastMove = this.chess.gameHistory[this.chess.gameHistory.length - 1];
                     if (lastMove && lastMove.needsPromotion) {
-                        this.chess.promotePawn('queen');
-                        console.log('🤖 AI promoted pawn to queen');
+                        const promotionPiece = aiMove.promotion || 'queen';
+                        this.chess.promotePawn(promotionPiece);
+                        console.log(`🤖 AI promoted pawn to ${promotionPiece}`);
                     }
                     
                     this.ui.updateDisplay();
@@ -335,15 +334,25 @@ class MathiasChess {
                     if (status === 'check') {
                         this.ui.showMessage('You are in check! 🤖', 'warning');
                     } else if (status === 'checkmate') {
-                        this.ui.showMessage('Checkmate! Computer wins! 🤖🏆', 'error');
+                        this.ui.showMessage(`Checkmate! ${engineName} wins! 🤖🏆`, 'error');
                     } else if (status === 'stalemate') {
                         this.ui.showMessage('Stalemate! Game is a draw.', 'info');
+                    } else {
+                        // Clear thinking message
+                        setTimeout(() => {
+                            const messageElement = document.getElementById('game-message');
+                            if (messageElement && messageElement.textContent.includes('thinking')) {
+                                messageElement.classList.remove('show');
+                            }
+                        }, 1000);
                     }
-                }
+                } else {
                     console.log('🤖 AI move failed!');
+                    this.ui.showMessage('AI move failed', 'error');
                 }
             } else {
                 console.log('🤖 No AI move found');
+                this.ui.showMessage('AI could not find a move', 'error');
             }
         } catch (error) {
             console.error('AI move error:', error);
@@ -353,9 +362,13 @@ class MathiasChess {
     
     updateAiInfo() {
         const aiInfo = document.getElementById('ai-info');
-        if (aiInfo && this.ai) {
-            const difficulty = this.ai.getDifficultyInfo();
-            aiInfo.textContent = difficulty.description;
+        if (aiInfo) {
+            const difficulty = this.stockfishEngine.isReady ? 
+                this.stockfishEngine.getDifficultyInfo() : 
+                this.ai.getDifficultyInfo();
+            
+            const engineName = this.stockfishEngine.isReady ? 'Stockfish' : 'Custom AI';
+            aiInfo.textContent = `${engineName}: ${difficulty.description}`;
         }
     }
     

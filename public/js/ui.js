@@ -66,8 +66,9 @@ class ChessUI {
                     
                     // Check if this move needs promotion
                     if (move && move.needsPromotion) {
-                        this.showPromotionDialog(move.promotionSquare);
-                        return; // Don't continue until promotion is chosen
+                        // Simple fallback - auto-promote to queen for now
+                        this.chess.promotePawn('queen');
+                        this.showMessage('Pawn promoted to queen!', 'success');
                     }
                     
                     // Check if this was a completed pawn promotion
@@ -88,6 +89,11 @@ class ChessUI {
                         this.showMessage(`Checkmate! ${winner} wins!`, 'success');
                     } else if (status === 'stalemate') {
                         this.showMessage('Stalemate! Game is a draw.', 'info');
+                    }
+                    
+                    // Trigger AI move if in AI mode
+                    if (window.mathiasChess && window.mathiasChess.isAiGame && this.chess.currentPlayer === 'black' && status === 'active') {
+                        setTimeout(() => window.mathiasChess.makeAiMove(), 100);
                     }
                 }
             }
@@ -294,13 +300,18 @@ class ChessUI {
     }
     
     bindPromotionEvents() {
-        const promotionBtns = document.querySelectorAll('.promotion-btn');
-        promotionBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const pieceType = e.currentTarget.dataset.piece;
-                this.handlePromotion(pieceType);
+        try {
+            const promotionBtns = document.querySelectorAll('.promotion-btn');
+            promotionBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const pieceType = e.currentTarget.dataset.piece;
+                    this.handlePromotion(pieceType);
+                });
             });
-        });
+        } catch (error) {
+            console.warn('Promotion events binding failed:', error);
+            // This is non-critical, game can continue
+        }
     }
     
     showPromotionDialog(square) {

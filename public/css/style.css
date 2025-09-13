@@ -415,6 +415,36 @@ body {
     line-height: 1.4;
 }
 
+.engine-status {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.engine-status.ready {
+    background: rgba(34, 139, 34, 0.3);
+    color: var(--minecraft-green);
+    border-color: var(--minecraft-green);
+}
+
+.engine-status.thinking {
+    background: rgba(255, 215, 0, 0.3);
+    color: var(--minecraft-gold);
+    border-color: var(--minecraft-gold);
+    animation: pulse 1.5s infinite;
+}
+
+.engine-status.fallback {
+    background: rgba(255, 69, 0, 0.3);
+    color: #FF4500;
+    border-color: #FF4500;
+}
+
 .hidden {
     display: none !important;
 }

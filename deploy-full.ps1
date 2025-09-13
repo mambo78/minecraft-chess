@@ -16,10 +16,10 @@ if (-not (Test-Path ".git")) {
 
 # Add all changes
 Write-Host "📁 Adding all changes..." -ForegroundColor Yellow
-git add .
+& "C:\Program Files\Git\bin\git.exe" add .
 
 # Check if there are changes to commit
-$changes = git status --porcelain
+$changes = & "C:\Program Files\Git\bin\git.exe" status --porcelain
 if (-not $changes) {
     Write-Host "ℹ️ No local changes to deploy. Pulling server updates anyway..." -ForegroundColor Blue
 } else {
@@ -34,11 +34,11 @@ if (-not $changes) {
 
     # Commit changes
     Write-Host "💾 Committing changes..." -ForegroundColor Yellow
-    git commit -m $CommitMessage
+    & "C:\Program Files\Git\bin\git.exe" commit -m $CommitMessage
 
     # Push to GitHub
     Write-Host "🌐 Pushing to GitHub..." -ForegroundColor Yellow
-    git push origin main
+    & "C:\Program Files\Git\bin\git.exe" push origin master
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "❌ Failed to push to GitHub!" -ForegroundColor Red
@@ -49,7 +49,7 @@ if (-not $changes) {
 
 # Deploy to server
 Write-Host "🖥️ Deploying to server..." -ForegroundColor Yellow
-$serverCommand = "cd /mnt/datos/web/chess/ && sudo git pull origin main && sudo chown -R www-data:www-data . && sudo chmod -R 755 . && sudo systemctl reload nginx && echo 'Deployment completed!'"
+$serverCommand = "cd /mnt/datos/web/chess/ && git pull origin master && echo 'Deployment completed!'"
 
 $sshResult = ssh mateo@192.168.1.34 $serverCommand
 

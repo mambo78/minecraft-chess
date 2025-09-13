@@ -1,277 +1,146 @@
-# 🎮 Mathias Chess
+# 🎮 Mathias Chess v2 - Clean Implementation
 
-A fun, educational chess game with a Minecraft theme designed to help teach chess to kids while providing an engaging online multiplayer experience! Personalized for Mathias!
+A modern chess game with **Stockfish AI integration** and **multiple themes**!
 
-![Minecraft Chess](https://img.shields.io/badge/Game-Minecraft%20Chess-brightgreen?style=for-the-badge&logo=minecraft)
-![Status](https://img.shields.io/badge/Status-Ready%20to%20Play-success?style=for-the-badge)
+## ✨ Features
 
-## 🌟 Features
-
-### 🎯 Educational Chess Game
-- **Full chess implementation** with all standard rules
-- **Minecraft-themed pieces** using fun emojis
-- **Move validation** and **legal move highlighting**
-- **Interactive tutorials** through hints system
-- **Visual feedback** for valid and invalid moves
-
-### 🌍 Multiplayer Experience  
-- **Real-time online multiplayer** using WebSockets
-- **Private rooms** with custom room IDs
-- **Friend-to-friend gameplay** by sharing room codes
-- **Automatic player matching** and turn management
-- **Game state synchronization** across players
-
-### 🎨 Minecraft Aesthetic
-- **Blocky, pixelated design** reminiscent of Minecraft
-- **Minecraft color scheme** with grass, wood, and stone textures
-- **Fun piece representations**: 
-  - White: 🤴👸🏰🧙🐴👤 (King, Queen, Rook, Bishop, Knight, Pawn)
-  - Black: 👹🧟‍♀️🗿🧙‍♂️🐷🧟 (King, Queen, Rook, Bishop, Knight, Pawn)
-- **Retro gaming font** (VT323) for authentic feel
-- **Animated interactions** and hover effects
-
-### 📱 Modern Web Features
-- **Fully responsive design** for desktop, tablet, and mobile
-- **Touch-friendly controls** for mobile devices
-- **Keyboard shortcuts** for power users
-- **Local storage** for game statistics
-- **Progressive Web App** ready
-- **Cross-browser compatibility**
+- **🤖 Stockfish AI Engine** - World's strongest chess engine with multiple difficulty levels
+- **🎨 7 Themed Piece Sets** - Classic, Minecraft, Mario, Sonic, Pokémon, Space, Medieval
+- **👥 Human vs Human** or **🤖 Human vs AI** modes
+- **🎯 Smart Move Validation** - Prevents illegal moves and checks
+- **📋 Move History** - Track all moves in algebraic notation
+- **↶ Undo System** - Take back moves (works in both modes)
+- **♕ Pawn Promotion** - Choose piece when pawns reach the end
+- **⚡ Keyboard Shortcuts** - Fast controls for experienced players
+- **📱 Responsive Design** - Works on desktop, tablet, and mobile
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- **Node.js** (version 14 or higher)
-- **npm** (comes with Node.js)
+1. **Install Node.js** (if you don't have it):
+   - Download from [nodejs.org](https://nodejs.org/)
+   - Choose the LTS version
 
-### Installation
-
-1. **Clone or download this project**
-   ```bash
-   git clone <repository-url>
-   cd minecraft-chess-new
-   ```
-
-2. **Install dependencies**
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. **Start the server**
+3. **Start the server**:
    ```bash
    npm start
    ```
 
-4. **Open your browser**
-   - Visit `http://localhost:3000`
-   - Start playing chess immediately!
-
-### Alternative Development Mode
-For development with auto-restart:
-```bash
-npm run dev
-```
+4. **Open your browser**:
+   - Go to `http://localhost:3000`
+   - Enjoy playing chess! 🎉
 
 ## 🎮 How to Play
 
-### Basic Chess Rules
-This game follows standard chess rules:
-- **Objective**: Checkmate your opponent's king
-- **Turn-based**: White moves first, then players alternate
-- **Piece movements**: Each piece has specific movement patterns
-- **Special moves**: Castling, en passant, pawn promotion
+### Game Modes
+- **👥 vs Human**: Play against another person
+- **🤖 vs Stockfish**: Play against the AI engine
 
-### Game Controls
-- **🖱️ Mouse/Touch**: Click to select pieces and make moves
-- **⌨️ Keyboard Shortcuts**:
-  - `ESC` - Clear selection
-  - `Ctrl+Z` - Undo last move
-  - `Ctrl+N` - Start new game
-  - `Ctrl+H` - Show hint
-  - `Ctrl+S` - Show game statistics
-  - `F1` - Show help
+### AI Difficulty Levels
+- **😊 Easy**: Perfect for beginners
+- **🤔 Medium**: Good challenge for casual players  
+- **😤 Hard**: Strong opponent for experienced players
+- **🧠 Expert**: Maximum strength - grandmaster level!
 
-### Multiplayer Mode
-1. **Connect to Server**: Click "Connect to Server" button
-2. **Join a Room**: 
-   - Enter a custom room ID, or
-   - Let the game generate one for you
-3. **Share Room ID**: Give the room ID to your friend
-4. **Play Together**: Take turns making moves in real-time!
+### Controls
+- **Click** pieces to select and move them
+- **ESC** - Clear selection
+- **Ctrl+Z** - Undo last move
+- **Ctrl+N** - New game
+- **H** - Show hint for selected piece
 
-## 📁 Project Structure
-
-```
-minecraft-chess-new/
-├── 📁 public/                 # Client-side files
-│   ├── 📁 css/
-│   │   └── style.css         # Minecraft-themed styling
-│   ├── 📁 js/
-│   │   ├── chess.js          # Chess game engine
-│   │   ├── ui.js             # User interface management
-│   │   ├── multiplayer.js    # WebSocket client
-│   │   └── main.js           # Game initialization
-│   └── index.html            # Main game page
-├── 📁 server/
-│   └── server.js             # Express + Socket.IO server
-├── 📁 assets/                # Game assets (expandable)
-│   ├── 📁 images/           # Future: piece images
-│   └── 📁 sounds/           # Future: sound effects
-├── package.json              # Node.js dependencies
-├── .gitignore               # Git ignore rules
-└── README.md                # This file
-```
+### Themes
+Choose from 7 amazing themes:
+- 🏛️ **Classic Chess** - Traditional pieces
+- 🎮 **Minecraft** - Blocky game theme
+- 🍄 **Mario Bros** - Nintendo characters
+- 💨 **Sonic** - Blue hedgehog theme
+- ⚡ **Pokémon** - Catch them all!
+- 🚀 **Space** - Cosmic adventure
+- ⚔️ **Medieval** - Knights and castles
 
 ## 🛠️ Technical Details
 
-### Frontend Technologies
-- **HTML5** with semantic markup
-- **CSS3** with Grid, Flexbox, and animations  
-- **Vanilla JavaScript** (ES6+) for game logic
-- **WebSocket** client for real-time communication
-- **Responsive design** principles
+### File Structure
+```
+chess-game-v2/
+├── public/
+│   ├── css/
+│   │   └── style.css      # Modern responsive styling
+│   ├── js/
+│   │   ├── chess.js       # Core chess logic & rules
+│   │   ├── stockfish.js   # AI engine integration
+│   │   ├── themes.js      # Piece themes system
+│   │   ├── ui.js          # User interface controller
+│   │   └── game.js        # Main game controller
+│   └── index.html         # Game interface
+├── server/
+│   └── server.js          # Express server
+├── package.json           # Dependencies
+└── README.md             # This file
+```
 
-### Backend Technologies
-- **Node.js** runtime environment
-- **Express.js** web framework
-- **Socket.IO** for WebSocket communication
-- **In-memory game state** management
-- **CORS** enabled for cross-origin requests
+### Key Technologies
+- **Frontend**: Vanilla JavaScript (ES6+), CSS Grid, Flexbox
+- **Backend**: Node.js, Express.js, Socket.IO
+- **AI Engine**: Stockfish.js (WebAssembly)
+- **Chess Logic**: Custom implementation with full rule validation
 
-### Game Engine Features
-- **Complete chess rule implementation**
-- **Move validation** with check/checkmate detection
-- **Game history** tracking with undo functionality
-- **En passant**, **castling**, and **pawn promotion**
-- **Stalemate** and **draw** detection
+## 🎯 Features Comparison
 
-## 🎓 Educational Value
-
-This game is designed to help teach chess, especially to children:
-
-### Learning Features
-- **Visual move hints** show legal moves
-- **Immediate feedback** for invalid moves  
-- **Turn indicators** make it clear whose turn it is
-- **Captured pieces display** shows game progress
-- **Move history** helps review games
-
-### Teaching Benefits
-- **Engaging theme** appeals to Minecraft fans
-- **Intuitive interface** reduces learning barriers
-- **Multiplayer support** enables teaching sessions
-- **Mistake forgiveness** with undo functionality
-- **Progress tracking** through statistics
-
-## 🔧 Customization
-
-### Adding New Features
-The modular architecture makes it easy to add:
-- **Sound effects** (placeholder system included)
-- **Piece animations** and movement effects
-- **AI opponents** for single-player mode
-- **Tournament modes** and rankings
-- **Custom piece sets** and themes
-
-### Configuration
-Key settings can be modified in:
-- `server/server.js` - Server configuration
-- `public/css/style.css` - Visual styling
-- `public/js/main.js` - Game initialization settings
-
-## 📊 API Endpoints
-
-The server provides several REST endpoints:
-
-- `GET /` - Main game page
-- `GET /api/rooms` - List active game rooms
-- `GET /api/stats` - Server statistics
-
-## 🔌 WebSocket Events
-
-### Client to Server
-- `joinRoom` - Join a game room
-- `makeMove` - Send a chess move
-- `newGame` - Start a new game
-- `leaveRoom` - Leave current room
-
-### Server to Client
-- `roomJoined` - Room join confirmation
-- `moveReceived` - Opponent's move
-- `newGameReceived` - New game started
-- `opponentJoined/Left` - Player status updates
+| Feature | Old Version | New Version |
+|---------|-------------|-------------|
+| Chess Engine | Custom buggy AI | **Stockfish 16** |
+| Themes | Broken system | **7 Working themes** |
+| Move Validation | Had bugs | **Perfect validation** |
+| UI Response | Laggy | **Smooth & fast** |
+| Code Quality | Messy | **Clean & organized** |
+| Error Handling | Poor | **Robust** |
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### Game Won't Load
+- Make sure Node.js is installed
+- Run `npm install` in the project directory
+- Check that port 3000 isn't in use
 
-**Server won't start**
-- Check if Node.js is installed: `node --version`
-- Ensure port 3000 is available
-- Try running with `npm run dev` instead
+### AI Not Working
+- The game will fallback to simple AI if Stockfish fails to load
+- Check browser console for error messages
+- Try refreshing the page
 
-**Can't connect to multiplayer**
-- Verify server is running
-- Check browser console for errors
-- Ensure WebSocket connections aren't blocked
-
-**Game doesn't load**
-- Clear browser cache and cookies
+### Themes Not Changing
+- Clear your browser cache
+- Check console for JavaScript errors
 - Try a different browser
-- Check for JavaScript errors in console
 
-**Moves not working**
-- Ensure you're clicking valid squares
-- Check if it's your turn in multiplayer
-- Verify the selected piece can make that move
+## 🔧 Development
 
-## 🚀 Deployment
+To modify the game:
 
-### Local Network Play
-To play across devices on your local network:
-1. Find your computer's IP address
-2. Start the server with `npm start`
-3. Other devices can connect to `http://YOUR_IP:3000`
+1. **Chess Rules**: Edit `chess.js`
+2. **AI Behavior**: Edit `stockfish.js` 
+3. **Themes**: Add new themes in `themes.js`
+4. **UI/UX**: Modify `ui.js` and `style.css`
+5. **Game Flow**: Update `game.js`
 
-### Cloud Deployment
-This app can be deployed to platforms like:
-- **Heroku** - Easy deployment with Git
-- **Railway** - Modern Node.js hosting
-- **DigitalOcean** - VPS deployment
-- **Netlify + Heroku** - Static frontend + backend
+## 📝 License
 
-## 🤝 Contributing
+This project is open source. Feel free to modify and use it for your own projects!
 
-This project welcomes contributions! Ideas for improvements:
+## 🎉 Credits
 
-### Gameplay Enhancements
-- **AI opponent** with difficulty levels
-- **Chess puzzles** and training modes
-- **Game analysis** and move suggestions
-- **Opening book** integration
-
-### Technical Improvements
-- **Database integration** for persistent games
-- **User authentication** and profiles  
-- **Spectator mode** for watching games
-- **Mobile app** versions
-
-### Educational Features
-- **Interactive tutorials** for beginners
-- **Chess notation** display and export
-- **Performance analytics** and improvement tracking
-- **Themed piece sets** (different games/movies)
-
-## 📜 License
-
-This project is open source and available under the MIT License.
-
-## 🎉 Have Fun!
-
-Minecraft Chess combines the strategic depth of chess with the playful aesthetics of Minecraft. Whether you're teaching a child the fundamentals of chess or just want to enjoy a casual game with friends, this project provides an engaging and accessible platform.
-
-**Ready to play? Start your server and begin your chess adventure!** 🏰♟️
+- **Stockfish** - The amazing chess engine
+- **Unicode Chess Symbols** - For piece representations
+- **Modern CSS** - For beautiful styling
+- **Your Creativity** - For the themed pieces!
 
 ---
 
-*Built with ❤️ for chess education and Minecraft fans everywhere*
+**Made with ♟️ by Mateo**
+
+*Enjoy your chess games and may the best player win!* 🏆

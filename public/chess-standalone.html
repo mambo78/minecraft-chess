@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Mathias Chess - Standalone</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323:wght@400&display=swap" rel="stylesheet">
+    <style>
+        /* Inline CSS for standalone version */
+        @import url('https://fonts.googleapis.com/css2?family=VT323:wght@400&display=swap');
+
+        :root {
+            --board-size: 480px;
+            --square-size: 60px;
+            --primary-color: #2c3e50;
+            --accent-color: #f39c12;
+            --success-color: #27ae60;
+            --warning-color: #e67e22;
+            --error-color: #e74c3c;
+            --light-square: #f0d9b5;
+            --dark-square: #b58863;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            min-height: 100vh;
+            font-size: 16px;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .white-info, .black-info {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .white-info {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid #ecf0f1;
+        }
+
+        .black-info {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #95a5a6;
+        }
+
+        .turn-display {
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: #2c3e50;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        /* Game Section */
+        .game-section {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .board-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coords-left {
+            display: flex;
+            flex-direction: column;
+            height: var(--board-size);
+            justify-content: space-around;
+            align-items: center;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .coords-bottom {
+            display: flex;
+            width: var(--board-size);
+            justify-content: space-around;
+            align-items: center;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .board-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Chess Board */
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, var(--square-size));
+            grid-template-rows: repeat(8, var(--square-size));
+            border: 3px solid #2c3e50;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .square {
+            width: var(--square-size);
+            height: var(--square-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .square.light {
+            background-color: var(--light-square);
+        }
+
+        .square.dark {
+            background-color: var(--dark-square);
+        }
+
+        .square:hover {
+            filter: brightness(1.1);
+        }
+
+        .square.selected {
+            background-color: #ffff00 !important;
+            box-shadow: inset 0 0 0 3px #ff0000;
+        }
+
+        .square.possible-move {
+            background-color: rgba(0, 255, 0, 0.3) !important;
+        }
+
+        .square.attack-move {
+            background-color: rgba(255, 0, 0, 0.4) !important;
+        }
+
+        .square.last-move {
+            box-shadow: inset 0 0 0 3px var(--accent-color);
+        }
+
+        /* Pieces */
+        .piece {
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        .piece:hover {
+            transform: scale(1.1);
+        }
+
+        /* Default piece symbols */
+        .piece.white.king::before { content: '♔'; color: #FFD700; }
+        .piece.white.queen::before { content: '♕'; color: #FF1493; }
+        .piece.white.rook::before { content: '♖'; color: #00CED1; }
+        .piece.white.bishop::before { content: '♗'; color: #FF4500; }
+        .piece.white.knight::before { content: '♘'; color: #9370DB; }
+        .piece.white.pawn::before { content: '♙'; color: #F5F5DC; }
+
+        .piece.black.king::before { content: '♚'; color: #000000; }
+        .piece.black.queen::before { content: '♛'; color: #8B0000; }
+        .piece.black.rook::before { content: '♜'; color: #2F4F4F; }
+        .piece.black.bishop::before { content: '♝'; color: #8B4513; }
+        .piece.black.knight::before { content: '♞'; color: #483D8B; }
+        .piece.black.pawn::before { content: '♟'; color: #696969; }
+
+        /* Game Controls */
+        .game-controls {
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .control-section h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--accent-color);
+            color: #2c3e50;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .mode-btn {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            padding: 8px 10px;
+        }
+
+        .mode-btn.active {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .ai-controls {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+        .ai-controls label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .engine-status {
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            border: 2px solid transparent;
+        }
+
+        .engine-status.ready {
+            background: rgba(39, 174, 96, 0.2);
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .captured-pieces {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .captured-white, .captured-black {
+            min-height: 30px;
+            padding: 5px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .captured-white::before {
+            content: 'White: ';
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .captured-black::before {
+            content: 'Black: ';
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .captured-piece {
+            font-size: 1.2rem;
+        }
+
+        .game-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-color);
+            color: #2c3e50;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .game-message.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .game-message.success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .game-message.warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .game-message.error {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .footer {
+            margin-top: 20px;
+        }
+
+        .move-history {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .move-history h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .move-list {
+            max-height: 150px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 4px;
+        }
+
+        .move-item {
+            padding: 4px 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .game-section {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            :root {
+                --board-size: 360px;
+                --square-size: 45px;
+            }
+            
+            .piece {
+                font-size: 2rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .game-controls {
+                width: 100%;
+                max-width: 360px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="header">
+            <h1 class="title">🎮 Mathias Chess 🎮</h1>
+            <div class="player-info">
+                <span class="white-info">White</span>
+                <div class="turn-display" id="turn-display">White's Turn</div>
+                <span class="black-info">Black</span>
+            </div>
+        </header>
+
+        <main class="game-section">
+            <div class="board-area">
+                <div class="coords-left">
+                    <div>8</div><div>7</div><div>6</div><div>5</div>
+                    <div>4</div><div>3</div><div>2</div><div>1</div>
+                </div>
+                <div class="board-wrapper">
+                    <div class="chess-board" id="chess-board">
+                        <!-- Squares generated by JavaScript -->
+                    </div>
+                    <div class="coords-bottom">
+                        <div>a</div><div>b</div><div>c</div><div>d</div>
+                        <div>e</div><div>f</div><div>g</div><div>h</div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="game-controls">
+                <div class="control-section">
+                    <h3>🎮 Game Mode</h3>
+                    <div class="mode-buttons">
+                        <button id="human-mode-btn" class="btn mode-btn active">👥 vs Human</button>
+                        <button id="ai-mode-btn" class="btn mode-btn">🤖 vs AI</button>
+                    </div>
+                    
+                    <div id="ai-controls" class="ai-controls hidden">
+                        <label for="ai-difficulty">Difficulty:</label>
+                        <select id="ai-difficulty" class="select-input">
+                            <option value="easy">😊 Easy</option>
+                            <option value="medium" selected>🤔 Medium</option>
+                            <option value="hard">😤 Hard</option>
+                            <option value="expert">🧠 Expert</option>
+                        </select>
+                        <div class="engine-status ready" id="engine-status">🤖 Simple AI Ready</div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🎨 Themes</h3>
+                    <select id="theme-selector" class="select-input">
+                        <option value="classic">Classic Chess</option>
+                        <option value="minecraft">🎮 Minecraft</option>
+                        <option value="mario">🍄 Mario Bros</option>
+                        <option value="sonic">💨 Sonic</option>
+                        <option value="pokemon">⚡ Pokémon</option>
+                        <option value="space">🚀 Space</option>
+                        <option value="medieval">⚔️ Medieval</option>
+                    </select>
+                    <button id="random-theme-btn" class="btn">🎲 Random Theme</button>
+                </div>
+
+                <div class="control-section">
+                    <h3>Game Controls</h3>
+                    <button id="new-game-btn" class="btn">🔄 New Game</button>
+                    <button id="undo-btn" class="btn">↶ Undo Move</button>
+                    <button id="hint-btn" class="btn">💡 Show Hint</button>
+                </div>
+
+                <div class="control-section">
+                    <h3>Captured Pieces</h3>
+                    <div class="captured-pieces">
+                        <div class="captured-white" id="captured-white"></div>
+                        <div class="captured-black" id="captured-black"></div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <footer class="footer">
+            <div class="move-history">
+                <h3>Move History</h3>
+                <div id="move-list" class="move-list"></div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="game-message" class="game-message"></div>
+
+    <!-- Include all the JavaScript inline for standalone version -->
+    <script src="js/themes.js"></script>
+    <script src="js/chess.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        // Simple AI fallback (no Stockfish for standalone)
+        class SimpleAI {
+            constructor() {
+                this.isReady = true;
+                this.difficulties = {
+                    easy: 'Random moves',
+                    medium: 'Basic strategy', 
+                    hard: 'Better strategy',
+                    expert: 'Advanced strategy'
+                };
+                this.currentDifficulty = 'medium';
+            }
+
+            setDifficulty(level) {
+                this.currentDifficulty = level;
+            }
+
+            getDifficultyInfo() {
+                return {
+                    name: `😊 ${this.currentDifficulty.charAt(0).toUpperCase() + this.currentDifficulty.slice(1)}`,
+                    description: this.difficulties[this.currentDifficulty]
+                };
+            }
+
+            async makeMove(chess) {
+                // Simple AI: pick a random valid move
+                await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+                
+                const moves = chess.getAllValidMoves('black');
+                if (moves.length === 0) return null;
+                
+                // Add some basic strategy for higher difficulties
+                if (this.currentDifficulty !== 'easy') {
+                    // Prefer captures
+                    const captures = moves.filter(move => 
+                        chess.getPiece(move.to.row, move.to.col) !== null
+                    );
+                    if (captures.length > 0 && Math.random() > 0.3) {
+                        return captures[Math.floor(Math.random() * captures.length)];
+                    }
+                }
+                
+                return moves[Math.floor(Math.random() * moves.length)];
+            }
+        }
+
+        // Simplified Game Controller
+        class StandaloneChessGame {
+            constructor() {
+                console.log('🚀 Initializing Standalone Chess Game...');
+                
+                this.chess = new Chess();
+                this.ui = new ChessUI(this.chess);
+                this.themes = new ChessThemes();
+                this.ai = new SimpleAI();
+                
+                this.gameMode = 'human';
+                this.isAiGame = false;
+                
+                this.initializeGame();
+                this.bindEvents();
+                
+                window.chessGame = this;
+                
+                console.log('✅ Standalone Chess Game initialized!');
+            }
+            
+            initializeGame() {
+                setTimeout(() => {
+                    this.themes.applyTheme();
+                }, 100);
+                
+                this.ui.showMessage('🎮 Welcome to Mathias Chess!', 'success');
+            }
+            
+            bindEvents() {
+                const humanModeBtn = document.getElementById('human-mode-btn');
+                const aiModeBtn = document.getElementById('ai-mode-btn');
+                
+                if (humanModeBtn) {
+                    humanModeBtn.addEventListener('click', () => this.setGameMode('human'));
+                }
+                
+                if (aiModeBtn) {
+                    aiModeBtn.addEventListener('click', () => this.setGameMode('ai'));
+                }
+                
+                const themeSelector = document.getElementById('theme-selector');
+                if (themeSelector) {
+                    themeSelector.addEventListener('change', (e) => {
+                        this.themes.setTheme(e.target.value);
+                        this.ui.showMessage(`Theme: ${this.themes.getCurrentTheme().name}! 🎨`, 'success');
+                    });
+                }
+                
+                const randomThemeBtn = document.getElementById('random-theme-btn');
+                if (randomThemeBtn) {
+                    randomThemeBtn.addEventListener('click', () => {
+                        const randomTheme = this.themes.getRandomTheme();
+                        this.themes.setTheme(randomTheme);
+                        themeSelector.value = randomTheme;
+                        this.ui.showMessage(`Random: ${this.themes.getCurrentTheme().name}! 🎲`, 'success');
+                    });
+                }
+                
+                const newGameBtn = document.getElementById('new-game-btn');
+                if (newGameBtn) {
+                    newGameBtn.addEventListener('click', () => this.newGame());
+                }
+                
+                const undoBtn = document.getElementById('undo-btn');
+                if (undoBtn) {
+                    undoBtn.addEventListener('click', () => this.undoMove());
+                }
+                
+                const hintBtn = document.getElementById('hint-btn');
+                if (hintBtn) {
+                    hintBtn.addEventListener('click', () => this.ui.showHint());
+                }
+            }
+            
+            setGameMode(mode) {
+                this.gameMode = mode;
+                this.isAiGame = (mode === 'ai');
+                
+                const humanModeBtn = document.getElementById('human-mode-btn');
+                const aiModeBtn = document.getElementById('ai-mode-btn');
+                const aiControls = document.getElementById('ai-controls');
+                
+                if (humanModeBtn && aiModeBtn) {
+                    humanModeBtn.classList.toggle('active', mode === 'human');
+                    aiModeBtn.classList.toggle('active', mode === 'ai');
+                }
+                
+                if (aiControls) {
+                    aiControls.classList.toggle('hidden', mode !== 'ai');
+                }
+                
+                this.newGame();
+                
+                const modeText = mode === 'ai' ? 'vs Simple AI' : 'vs Human';
+                this.ui.showMessage(`Game mode: ${modeText}`, 'info');
+            }
+            
+            newGame() {
+                this.chess.resetGame();
+                this.ui.clearSelection();
+                this.ui.updateDisplay();
+                this.ui.showMessage('New game started! ♟️', 'success');
+            }
+            
+            undoMove() {
+                if (this.chess.gameHistory.length === 0) {
+                    this.ui.showMessage('No moves to undo', 'warning');
+                    return;
+                }
+                
+                if (this.isAiGame && this.chess.gameHistory.length >= 2) {
+                    this.chess.undoLastMove();
+                    this.chess.undoLastMove();
+                } else {
+                    this.chess.undoLastMove();
+                }
+                
+                this.ui.clearSelection();
+                this.ui.updateDisplay();
+                this.ui.showMessage('Move undone', 'info');
+            }
+            
+            async onPlayerMove() {
+                if (this.isAiGame && this.chess.currentPlayer === 'black' && this.chess.gameStatus === 'active') {
+                    setTimeout(() => this.makeAiMove(), 300);
+                }
+            }
+            
+            async makeAiMove() {
+                if (!this.isAiGame || this.chess.currentPlayer !== 'black') return;
+                
+                this.ui.showMessage('🤖 AI is thinking...', 'info');
+                
+                try {
+                    const aiMove = await this.ai.makeMove(this.chess);
+                    
+                    if (aiMove) {
+                        const success = this.chess.makeMove(
+                            aiMove.from.row, aiMove.from.col,
+                            aiMove.to.row, aiMove.to.col
+                        );
+                        
+                        if (success) {
+                            if (this.chess.pendingPromotion) {
+                                this.chess.promotePawn('queen');
+                            }
+                            
+                            this.ui.updateDisplay();
+                            this.ui.checkGameStatus();
+                        }
+                    }
+                } catch (error) {
+                    console.error('AI error:', error);
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                try {
+                    new StandaloneChessGame();
+                } catch (error) {
+                    console.error('Failed to initialize:', error);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
-  "name": "minecraft-chess",
-  "version": "1.0.0",
-  "description": "A Minecraft-themed chess game for teaching and online play",
+  "name": "chess-game-stockfish",
+  "version": "2.0.0",
+  "description": "Chess game with Stockfish engine and themed pieces",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
@@ -10,23 +10,22 @@
   },
   "keywords": [
     "chess",
-    "minecraft",
+    "stockfish", 
     "game",
-    "education",
-    "multiplayer"
+    "ai",
+    "themes"
   ],
-  "author": "Your Name",
+  "author": "Mateo",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
-    "cors": "^2.8.5",
-    "path": "^0.12.7"
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   }
 }

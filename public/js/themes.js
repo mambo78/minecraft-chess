@@ -26,120 +26,120 @@ class ChessThemes {
             minecraft: {
                 name: '🎮 Minecraft Theme',
                 white: {
-                    king: { symbol: '🤴', color: '#FFD700' },      // Steve as King
-                    queen: { symbol: '👸', color: '#FF69B4' },     // Alex as Queen
-                    rook: { symbol: '🏰', color: '#8B7355' },      // Castle/Tower
-                    bishop: { symbol: '🧙', color: '#8A2BE2' },    // Wizard/Enchanter
-                    knight: { symbol: '🐴', color: '#A0522D' },    // Horse
-                    pawn: { symbol: '🧱', color: '#CD853F' }       // Block
+                    king: { symbol: '🤴', color: '#FFD700' },
+                    queen: { symbol: '👸', color: '#FF69B4' },
+                    rook: { symbol: '🏰', color: '#8B7355' },
+                    bishop: { symbol: '🧙', color: '#8A2BE2' },
+                    knight: { symbol: '🐴', color: '#A0522D' },
+                    pawn: { symbol: '🧱', color: '#CD853F' }
                 },
                 black: {
-                    king: { symbol: '👾', color: '#2F4F2F' },      // Enderman
-                    queen: { symbol: '🧟', color: '#8B0000' },     // Zombie
-                    rook: { symbol: '🕳️', color: '#2F2F2F' },      // Cave/Void
-                    bishop: { symbol: '🔮', color: '#4B0082' },    // Enchanted Orb
-                    knight: { symbol: '🕷️', color: '#8B4513' },    // Spider
-                    pawn: { symbol: '💀', color: '#696969' }       // Skeleton Head
+                    king: { symbol: '👾', color: '#2F4F2F' },
+                    queen: { symbol: '🧟', color: '#8B0000' },
+                    rook: { symbol: '🕳️', color: '#2F2F2F' },
+                    bishop: { symbol: '🔮', color: '#4B0082' },
+                    knight: { symbol: '🕷️', color: '#8B4513' },
+                    pawn: { symbol: '💀', color: '#696969' }
                 }
             },
 
             mario: {
                 name: '🍄 Mario Bros Theme',
                 white: {
-                    king: { symbol: '👑', color: '#FFD700' },      // Crown (Mario)
-                    queen: { symbol: '👗', color: '#FF69B4' },     // Princess Peach
-                    rook: { symbol: '🏰', color: '#FF6B6B' },      // Castle
-                    bishop: { symbol: '🍄', color: '#FF0000' },    // Super Mushroom
-                    knight: { symbol: '🦆', color: '#FFD700' },    // Yoshi
-                    pawn: { symbol: '⭐', color: '#FFD700' }       // Star
+                    king: { symbol: '👑', color: '#FFD700' },
+                    queen: { symbol: '👗', color: '#FF69B4' },
+                    rook: { symbol: '🏰', color: '#FF6B6B' },
+                    bishop: { symbol: '🍄', color: '#FF0000' },
+                    knight: { symbol: '🦆', color: '#FFD700' },
+                    pawn: { symbol: '⭐', color: '#FFD700' }
                 },
                 black: {
-                    king: { symbol: '👹', color: '#8B0000' },      // Bowser
-                    queen: { symbol: '🖤', color: '#4B0082' },     // Dark Magic
-                    rook: { symbol: '🏴', color: '#2F2F2F' },      // Dark Castle
-                    bishop: { symbol: '🍄‍🟫', color: '#8B4513' },   // Poison Mushroom
-                    knight: { symbol: '🐢', color: '#228B22' },    // Koopa
-                    pawn: { symbol: '💣', color: '#2F2F2F' }       // Bob-omb
+                    king: { symbol: '👹', color: '#8B0000' },
+                    queen: { symbol: '🖤', color: '#4B0082' },
+                    rook: { symbol: '🏴', color: '#2F2F2F' },
+                    bishop: { symbol: '🍄‍🟫', color: '#8B4513' },
+                    knight: { symbol: '🐢', color: '#228B22' },
+                    pawn: { symbol: '💣', color: '#2F2F2F' }
                 }
             },
 
             sonic: {
                 name: '💨 Sonic Theme',
                 white: {
-                    king: { symbol: '💎', color: '#00BFFF' },      // Chaos Emerald
-                    queen: { symbol: '🦔', color: '#FF69B4' },     // Amy Rose
-                    rook: { symbol: '🏃', color: '#0000FF' },      // Sonic Running
-                    bishop: { symbol: '🌟', color: '#FFD700' },    // Power Star
-                    knight: { symbol: '🦊', color: '#FF8C00' },    // Tails
-                    pawn: { symbol: '💍', color: '#FFD700' }       // Ring
+                    king: { symbol: '💎', color: '#00BFFF' },
+                    queen: { symbol: '🦔', color: '#FF69B4' },
+                    rook: { symbol: '🏃', color: '#0000FF' },
+                    bishop: { symbol: '🌟', color: '#FFD700' },
+                    knight: { symbol: '🦊', color: '#FF8C00' },
+                    pawn: { symbol: '💍', color: '#FFD700' }
                 },
                 black: {
-                    king: { symbol: '🖤', color: '#8B0000' },      // Dr. Robotnik
-                    queen: { symbol: '🤖', color: '#2F4F4F' },     // Robot
-                    rook: { symbol: '⚡', color: '#8B008B' },      // Electric
-                    bishop: { symbol: '🔧', color: '#708090' },    // Mechanical
-                    knight: { symbol: '🦇', color: '#4B0082' },    // Shadow/Rouge
-                    pawn: { symbol: '⚙️', color: '#696969' }       // Gear/Robot Part
+                    king: { symbol: '🖤', color: '#8B0000' },
+                    queen: { symbol: '🤖', color: '#2F4F4F' },
+                    rook: { symbol: '⚡', color: '#8B008B' },
+                    bishop: { symbol: '🔧', color: '#708090' },
+                    knight: { symbol: '🦇', color: '#4B0082' },
+                    pawn: { symbol: '⚙️', color: '#696969' }
                 }
             },
 
             pokemon: {
                 name: '⚡ Pokémon Theme',
                 white: {
-                    king: { symbol: '👑', color: '#FFD700' },      // Champion Crown
-                    queen: { symbol: '🌸', color: '#FF69B4' },     // Fairy Type
-                    rook: { symbol: '🏔️', color: '#A0522D' },      // Rock Type
-                    bishop: { symbol: '🔮', color: '#8A2BE2' },    // Psychic Type
-                    knight: { symbol: '🐎', color: '#8B4513' },    // Normal Type
-                    pawn: { symbol: '⚡', color: '#FFD700' }       // Electric (Pikachu)
+                    king: { symbol: '👑', color: '#FFD700' },
+                    queen: { symbol: '🌸', color: '#FF69B4' },
+                    rook: { symbol: '🏔️', color: '#A0522D' },
+                    bishop: { symbol: '🔮', color: '#8A2BE2' },
+                    knight: { symbol: '🐎', color: '#8B4513' },
+                    pawn: { symbol: '⚡', color: '#FFD700' }
                 },
                 black: {
-                    king: { symbol: '👹', color: '#8B0000' },      // Dark Type
-                    queen: { symbol: '🐉', color: '#4B0082' },     // Dragon Type
-                    rook: { symbol: '🌋', color: '#FF4500' },      // Fire Type
-                    bishop: { symbol: '👻', color: '#483D8B' },    // Ghost Type
-                    knight: { symbol: '🦇', color: '#2F2F2F' },    // Flying Dark
-                    pawn: { symbol: '🕳️', color: '#696969' }       // Dark Void
+                    king: { symbol: '👹', color: '#8B0000' },
+                    queen: { symbol: '🐉', color: '#4B0082' },
+                    rook: { symbol: '🌋', color: '#FF4500' },
+                    bishop: { symbol: '👻', color: '#483D8B' },
+                    knight: { symbol: '🦇', color: '#2F2F2F' },
+                    pawn: { symbol: '🕳️', color: '#696969' }
                 }
             },
 
             space: {
                 name: '🚀 Space Theme',
                 white: {
-                    king: { symbol: '🌟', color: '#FFD700' },      // Star
-                    queen: { symbol: '🌙', color: '#C0C0C0' },     // Moon
-                    rook: { symbol: '🚀', color: '#00BFFF' },      // Rocket
-                    bishop: { symbol: '🛸', color: '#9370DB' },    // UFO
-                    knight: { symbol: '👨‍🚀', color: '#FF6B6B' },   // Astronaut
-                    pawn: { symbol: '🌍', color: '#00CED1' }       // Planet
+                    king: { symbol: '🌟', color: '#FFD700' },
+                    queen: { symbol: '🌙', color: '#C0C0C0' },
+                    rook: { symbol: '🚀', color: '#00BFFF' },
+                    bishop: { symbol: '🛸', color: '#9370DB' },
+                    knight: { symbol: '👨‍🚀', color: '#FF6B6B' },
+                    pawn: { symbol: '🌍', color: '#00CED1' }
                 },
                 black: {
-                    king: { symbol: '🕳️', color: '#000000' },      // Black Hole
-                    queen: { symbol: '💫', color: '#8B008B' },     // Nebula
-                    rook: { symbol: '☄️', color: '#2F4F4F' },      // Comet/Meteor
-                    bishop: { symbol: '👽', color: '#228B22' },    // Alien
-                    knight: { symbol: '🛰️', color: '#708090' },    // Satellite
-                    pawn: { symbol: '🌑', color: '#696969' }       // Dark Moon
+                    king: { symbol: '🕳️', color: '#000000' },
+                    queen: { symbol: '💫', color: '#8B008B' },
+                    rook: { symbol: '☄️', color: '#2F4F4F' },
+                    bishop: { symbol: '👽', color: '#228B22' },
+                    knight: { symbol: '🛰️', color: '#708090' },
+                    pawn: { symbol: '🌑', color: '#696969' }
                 }
             },
 
             medieval: {
                 name: '⚔️ Medieval Theme',
                 white: {
-                    king: { symbol: '👑', color: '#FFD700' },      // Crown
-                    queen: { symbol: '👸', color: '#FF69B4' },     // Queen
-                    rook: { symbol: '🏰', color: '#8B7355' },      // Castle
-                    bishop: { symbol: '⛪', color: '#8A2BE2' },    // Church
-                    knight: { symbol: '🐴', color: '#A0522D' },    // Horse
-                    pawn: { symbol: '⚔️', color: '#C0C0C0' }       // Sword
+                    king: { symbol: '👑', color: '#FFD700' },
+                    queen: { symbol: '👸', color: '#FF69B4' },
+                    rook: { symbol: '🏰', color: '#8B7355' },
+                    bishop: { symbol: '⛪', color: '#8A2BE2' },
+                    knight: { symbol: '🐴', color: '#A0522D' },
+                    pawn: { symbol: '⚔️', color: '#C0C0C0' }
                 },
                 black: {
-                    king: { symbol: '🖤', color: '#2F2F2F' },      // Dark Crown
-                    queen: { symbol: '🧙‍♀️', color: '#4B0082' },   // Dark Sorceress
-                    rook: { symbol: '🏴', color: '#2F2F2F' },      // Dark Tower
-                    bishop: { symbol: '🔮', color: '#8B0000' },    // Dark Magic
-                    knight: { symbol: '🐺', color: '#696969' },    // Wolf
-                    pawn: { symbol: '🗡️', color: '#696969' }       // Dark Sword
+                    king: { symbol: '🖤', color: '#2F2F2F' },
+                    queen: { symbol: '🧙‍♀️', color: '#4B0082' },
+                    rook: { symbol: '🏴', color: '#2F2F2F' },
+                    bishop: { symbol: '🔮', color: '#8B0000' },
+                    knight: { symbol: '🐺', color: '#696969' },
+                    pawn: { symbol: '🗡️', color: '#696969' }
                 }
             }
         };
@@ -167,39 +167,21 @@ class ChessThemes {
 
     applyTheme() {
         const theme = this.getCurrentTheme();
+        console.log('🎨 Applying theme:', theme.name);
         
-        // Update CSS variables for piece colors
-        const root = document.documentElement;
-        
-        // Apply colors for each piece type
-        Object.keys(theme.white).forEach(pieceType => {
-            root.style.setProperty(`--white-${pieceType}-color`, theme.white[pieceType].color);
-            root.style.setProperty(`--black-${pieceType}-color`, theme.black[pieceType].color);
-        });
-
-        // Update CSS rules dynamically
-        this.updatePieceStyles(theme);
-        
-        // Trigger UI update if chess UI exists
-        if (window.mathiasChess && window.mathiasChess.ui) {
-            window.mathiasChess.ui.updateDisplay();
-        }
-    }
-
-    updatePieceStyles(theme) {
         // Remove existing theme styles
-        let existingStyle = document.getElementById('theme-styles');
+        let existingStyle = document.getElementById('dynamic-theme-styles');
         if (existingStyle) {
             existingStyle.remove();
         }
 
         // Create new theme styles
         const style = document.createElement('style');
-        style.id = 'theme-styles';
+        style.id = 'dynamic-theme-styles';
         
         let css = '';
         
-        // Generate CSS for each piece
+        // Generate CSS for each piece type
         Object.keys(theme.white).forEach(pieceType => {
             css += `
 .piece.white.${pieceType}::before { 
@@ -213,8 +195,30 @@ class ChessThemes {
             `;
         });
 
+        // Update promotion symbols too
+        Object.keys(theme.white).forEach(pieceType => {
+            if (pieceType !== 'king' && pieceType !== 'pawn') { // Only pieces that can be promoted to
+                css += `
+.promotion-btn[data-piece="${pieceType}"] .piece-symbol { 
+    color: ${theme.white[pieceType].color}; 
+}
+.promotion-btn[data-piece="${pieceType}"] .piece-symbol::before { 
+    content: '${theme.white[pieceType].symbol}'; 
+}
+                `;
+            }
+        });
+
         style.textContent = css;
         document.head.appendChild(style);
+        
+        console.log('🎨 Theme applied successfully');
+    }
+
+    getRandomTheme() {
+        const themes = Object.keys(this.themes);
+        const randomIndex = Math.floor(Math.random() * themes.length);
+        return themes[randomIndex];
     }
 
     getPieceInfo(color, type) {

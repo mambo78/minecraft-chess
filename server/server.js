@@ -4,8 +4,6 @@ const socketIo = require('socket.io');
 const path = require('path');
 const cors = require('cors');
 
-console.log('🚀 Starting Mathias Chess Simple Server...');
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -19,49 +17,15 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    });
-});
 
 // Serve the main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Optional: API endpoint for chess.js validation (if needed)
-app.post('/api/validate-move', (req, res) => {
-    try {
-        // This is optional - can be used for server-side validation
-        const { Chess } = require('chess.js');
-        const chess = new Chess(req.body.fen || undefined);
-        const move = chess.move(req.body.move);
-        
-        if (move) {
-            res.json({
-                valid: true,
-                fen: chess.fen(),
-                move: move,
-                check: chess.inCheck(),
-                checkmate: chess.isCheckmate(),
-                stalemate: chess.isStalemate()
-            });
-        } else {
-            res.json({ valid: false });
-        }
-    } catch (error) {
-        res.json({ valid: false, error: error.message });
-    }
-});
-
-// Socket.IO for multiplayer (keeping v2 functionality)
+// Socket.IO for multiplayer (optional feature)
 const rooms = new Map();
 
 io.on('connection', (socket) => {
@@ -112,9 +76,6 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`🚀 Mathias Chess Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Chess game server running on http://localhost:${PORT}`);
     console.log(`🎮 Open your browser and navigate to the URL above`);
-    console.log(`🏥 Health check: http://localhost:${PORT}/health`);
 });
-
-module.exports = app;

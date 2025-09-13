@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mathias Chess - Professional Edition</title>
+    <title>🎮 Mathias Chess - Professional v5</title>
     <style>
-        /* Base Styles */
+        /* Simple inline styles similar to v2 approach but with v5's beautiful design */
         * {
             margin: 0;
             padding: 0;
@@ -29,7 +29,6 @@
             align-items: start;
         }
 
-        /* Header */
         .header {
             grid-column: 1 / -1;
             text-align: center;
@@ -41,17 +40,8 @@
             font-weight: bold;
             color: #f39c12;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
         }
 
-        .game-icon {
-            font-size: 2rem;
-        }
-
-        /* Turn Indicator */
         .turn-indicator {
             display: flex;
             justify-content: center;
@@ -63,7 +53,6 @@
             padding: 8px 20px;
             border-radius: 20px;
             font-weight: bold;
-            border: 2px solid transparent;
             transition: all 0.3s ease;
         }
 
@@ -80,12 +69,10 @@
         .current-turn {
             background: #f39c12 !important;
             color: white !important;
-            border-color: #e67e22;
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
         }
 
-        /* Chess Board */
         .board-container {
             display: flex;
             flex-direction: column;
@@ -119,13 +106,8 @@
             font-size: 36px;
         }
 
-        .square.light {
-            background-color: #f0d9b5;
-        }
-
-        .square.dark {
-            background-color: #b58863;
-        }
+        .square.light { background-color: #f0d9b5; }
+        .square.dark { background-color: #b58863; }
 
         .square:hover {
             transform: scale(1.05);
@@ -161,7 +143,6 @@
             50% { opacity: 0.7; }
         }
 
-        /* Control Panel */
         .control-panel {
             display: flex;
             flex-direction: column;
@@ -180,16 +161,8 @@
             font-weight: bold;
             margin-bottom: 15px;
             color: #f39c12;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .section-icon {
-            font-size: 1rem;
-        }
-
-        /* Game Mode */
         .mode-buttons {
             display: flex;
             gap: 10px;
@@ -222,100 +195,6 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
         }
 
-        .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        /* AI Controls */
-        .ai-controls {
-            margin-top: 15px;
-        }
-
-        .ai-controls.hidden {
-            display: none;
-        }
-
-        .difficulty-selector {
-            margin-bottom: 15px;
-        }
-
-        .difficulty-selector label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #ecf0f1;
-        }
-
-        .difficulty-selector select {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background: #34495e;
-            color: white;
-            cursor: pointer;
-        }
-
-        .ai-status {
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .ai-status.ready {
-            background: #27ae60;
-            color: white;
-        }
-
-        .ai-status.thinking {
-            background: #f39c12;
-            color: white;
-        }
-
-        .ai-status.loading {
-            background: #3498db;
-            color: white;
-        }
-
-        .ai-status.error {
-            background: #e74c3c;
-            color: white;
-        }
-
-        /* Theme Controls */
-        .theme-selector select {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background: #34495e;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .random-theme-btn {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 8px;
-            background: #f39c12;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .random-theme-btn:hover {
-            background: #e67e22;
-            transform: translateY(-2px);
-        }
-
-        /* Game Controls */
         .control-btn {
             width: 100%;
             padding: 12px;
@@ -335,64 +214,31 @@
             transform: translateY(-2px);
         }
 
-        .control-btn:disabled {
-            background: #7f8c8d;
-            cursor: not-allowed;
-            transform: none;
+        .theme-selector select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #34495e;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
         }
 
-        /* Game Status */
-        .game-status {
-            padding: 15px;
+        .ai-controls { margin-top: 15px; }
+        .ai-controls.hidden { display: none; }
+
+        .ai-status {
+            padding: 10px;
+            border-radius: 5px;
             text-align: center;
             font-weight: bold;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .game-status.normal {
-            background: rgba(52, 152, 219, 0.3);
-            color: #3498db;
-        }
-
-        .game-status.check {
-            background: rgba(231, 76, 60, 0.3);
-            color: #e74c3c;
-        }
-
-        .game-status.checkmate {
-            background: rgba(192, 57, 43, 0.5);
-            color: #c0392b;
-        }
-
-        .game-status.stalemate {
-            background: rgba(149, 165, 166, 0.3);
-            color: #95a5a6;
-        }
-
-        /* Captured Pieces */
-        .captured-pieces {
-            min-height: 100px;
-        }
-
-        .captured-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
             margin-top: 10px;
+            background: #27ae60;
+            color: white;
         }
 
-        .captured-piece {
-            font-size: 24px;
-            padding: 5px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-        }
-
-        /* Themes */
-        .theme-classic .square.light { background-color: #f0d9b5; }
-        .theme-classic .square.dark { background-color: #b58863; }
-
+        /* Theme variations */
         .theme-neon .square.light { background-color: #00ffff; }
         .theme-neon .square.dark { background-color: #ff00ff; }
 
@@ -411,7 +257,7 @@
         .theme-royal .square.light { background-color: #dda0dd; }
         .theme-royal .square.dark { background-color: #8b008b; }
 
-        /* Pawn Promotion Dialog */
+        /* Promotion Dialog */
         .promotion-dialog {
             display: none;
             position: fixed;
@@ -432,13 +278,6 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             text-align: center;
             border: 2px solid #f39c12;
-        }
-
-        .promotion-title {
-            font-size: 1.5rem;
-            color: #f39c12;
-            margin-bottom: 20px;
-            font-weight: bold;
         }
 
         .promotion-pieces {
@@ -466,53 +305,13 @@
             border-color: #e67e22;
             transform: scale(1.1);
         }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .game-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .control-panel {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .control-section {
-                flex: 1;
-                min-width: 250px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .chess-board {
-                grid-template-columns: repeat(8, 45px);
-                grid-template-rows: repeat(8, 45px);
-            }
-
-            .square {
-                width: 45px;
-                height: 45px;
-                font-size: 28px;
-            }
-
-            .control-section {
-                min-width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <!-- Header -->
         <div class="header">
-            <h1 class="game-title">
-                <span class="game-icon">🎮</span>
-                Mathias Chess - Professional Edition
-                <span class="game-icon">🎮</span>
-            </h1>
+            <h1 class="game-title">🎮 Mathias Chess - Professional v5 🎮</h1>
             
             <div class="turn-indicator">
                 <div class="player-indicator white current-turn" id="white-indicator">White</div>
@@ -529,44 +328,21 @@
 
         <!-- Control Panel -->
         <div class="control-panel">
-            <!-- Game Status -->
-            <div class="control-section">
-                <div class="game-status normal" id="game-status">
-                    ♔ Game Ready - White to Move
-                </div>
-            </div>
-
             <!-- Game Mode -->
             <div class="control-section">
-                <div class="section-title">
-                    <span class="section-icon">🎯</span>
-                    Game Mode
-                </div>
+                <div class="section-title">🎯 Game Mode</div>
                 <div class="mode-buttons">
                     <button class="mode-btn human active" id="human-mode">👥 vs Human</button>
                     <button class="mode-btn ai" id="ai-mode">🤖 vs Stockfish</button>
                 </div>
                 <div class="ai-controls hidden" id="ai-controls">
-                    <div class="difficulty-selector">
-                        <label>Difficulty:</label>
-                        <select id="difficulty-select">
-                            <option value="1">Easy</option>
-                            <option value="5">Medium</option>
-                            <option value="10" selected>Hard</option>
-                            <option value="15">Expert</option>
-                            <option value="20">Master</option>
-                        </select>
-                    </div>
-                    <div class="ai-status loading" id="ai-status">🔄 Loading Stockfish...</div>
+                    <div class="ai-status" id="ai-status">🤖 Stockfish Ready</div>
                 </div>
             </div>
 
             <!-- Themes -->
             <div class="control-section">
-                <div class="section-title">
-                    <span class="section-icon">🎨</span>
-                    Themes
-                </div>
+                <div class="section-title">🎨 Themes</div>
                 <div class="theme-selector">
                     <select id="theme-select">
                         <option value="classic">Classic Chess</option>
@@ -578,7 +354,6 @@
                         <option value="royal">Royal Purple</option>
                     </select>
                 </div>
-                <button class="random-theme-btn" id="random-theme">🎲 Random Theme</button>
             </div>
 
             <!-- Game Controls -->
@@ -588,27 +363,13 @@
                 <button class="control-btn" id="undo-move">↩️ Undo Move</button>
                 <button class="control-btn" id="show-hint">💡 Show Hint</button>
             </div>
-
-            <!-- Captured Pieces -->
-            <div class="control-section">
-                <div class="section-title">
-                    <span class="section-icon">👑</span>
-                    Captured Pieces
-                </div>
-                <div class="captured-pieces">
-                    <div>White captured:</div>
-                    <div class="captured-list" id="white-captured"></div>
-                    <div style="margin-top: 10px;">Black captured:</div>
-                    <div class="captured-list" id="black-captured"></div>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Pawn Promotion Dialog -->
     <div class="promotion-dialog" id="promotion-dialog">
         <div class="promotion-content">
-            <div class="promotion-title">Choose promotion piece:</div>
+            <h3 style="color: #f39c12; margin-bottom: 20px;">Choose promotion piece:</h3>
             <div class="promotion-pieces" id="promotion-pieces">
                 <div class="promotion-piece" data-piece="q"></div>
                 <div class="promotion-piece" data-piece="r"></div>
@@ -618,167 +379,29 @@
         </div>
     </div>
 
-    <!-- Chess.js Library -->
+    <!-- Chess.js Library from CDN (like v2 approach but with chess.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <!-- Socket.io for multiplayer -->
+    <script src="/socket.io/socket.io.js"></script>
     
-    <!-- Stockfish Engine -->
     <script>
-        class StockfishEngine {
-            constructor() {
-                this.worker = null;
-                this.isReady = false;
-                this.isThinking = false;
-                this.difficulty = 10;
-                this.moveCallback = null;
-                this.statusElement = document.getElementById('ai-status');
-                this.initializeEngine();
-            }
-
-            async initializeEngine() {
-                try {
-                    this.updateStatus('loading', '🔄 Loading Stockfish...');
-                    
-                    // Try to load Stockfish from CDN
-                    this.worker = new Worker('https://unpkg.com/stockfish@16.0.0/src/stockfish.js');
-                    
-                    this.worker.onmessage = (e) => this.handleMessage(e.data);
-                    this.worker.onerror = (e) => {
-                        console.log('Stockfish worker error:', e);
-                        this.fallbackToSimpleAI();
-                    };
-                    
-                    // Initialize engine
-                    this.sendCommand('uci');
-                    
-                    // Set a timeout to fallback if Stockfish doesn't load
-                    setTimeout(() => {
-                        if (!this.isReady) {
-                            this.fallbackToSimpleAI();
-                        }
-                    }, 5000);
-                    
-                } catch (error) {
-                    console.log('Failed to load Stockfish:', error);
-                    this.fallbackToSimpleAI();
-                }
-            }
-
-            fallbackToSimpleAI() {
-                this.worker = null;
-                this.updateStatus('ready', '🎯 Smart AI Ready');
-                this.isReady = true;
-            }
-
-            handleMessage(message) {
-                console.log('Stockfish:', message);
-                
-                if (message === 'uciok') {
-                    this.sendCommand('isready');
-                } else if (message === 'readyok') {
-                    this.isReady = true;
-                    this.updateStatus('ready', '🤖 Stockfish Ready');
-                    this.sendCommand(`setoption name Skill Level value ${this.difficulty}`);
-                } else if (message.startsWith('bestmove')) {
-                    const move = message.split(' ')[1];
-                    this.isThinking = false;
-                    this.updateStatus('ready', '🤖 Stockfish Ready');
-                    if (this.moveCallback && move !== '(none)') {
-                        this.moveCallback(move);
-                        this.moveCallback = null;
-                    }
-                }
-            }
-
-            sendCommand(command) {
-                if (this.worker) {
-                    this.worker.postMessage(command);
-                }
-            }
-
-            async getBestMove(fen) {
-                if (!this.isReady) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    return this.getSmartAIMove();
-                }
-
-                return new Promise((resolve) => {
-                    if (this.worker) {
-                        this.isThinking = true;
-                        this.updateStatus('thinking', '🤔 Stockfish Thinking...');
-                        
-                        this.moveCallback = resolve;
-                        this.sendCommand(`position fen ${fen}`);
-                        this.sendCommand(`go depth ${Math.min(this.difficulty, 15)} movetime 2000`);
-                        
-                        // Timeout fallback
-                        setTimeout(() => {
-                            if (this.isThinking) {
-                                this.isThinking = false;
-                                this.updateStatus('ready', '🤖 Stockfish Ready');
-                                resolve(this.getSmartAIMove());
-                            }
-                        }, 5000);
-                    } else {
-                        resolve(this.getSmartAIMove());
-                    }
-                });
-            }
-
-            getSmartAIMove() {
-                const moves = window.chess.moves({ verbose: true });
-                if (moves.length === 0) return null;
-                
-                // Prioritize moves: captures > checks > development
-                const captures = moves.filter(move => move.captured);
-                const checks = moves.filter(move => {
-                    window.chess.move(move);
-                    const inCheck = window.chess.inCheck();
-                    window.chess.undo();
-                    return inCheck;
-                });
-                
-                let selectedMoves = moves;
-                if (captures.length > 0) {
-                    selectedMoves = captures;
-                } else if (checks.length > 0) {
-                    selectedMoves = checks;
-                }
-                
-                const randomMove = selectedMoves[Math.floor(Math.random() * selectedMoves.length)];
-                return randomMove.from + randomMove.to + (randomMove.promotion || '');
-            }
-
-            setDifficulty(level) {
-                this.difficulty = level;
-                if (this.isReady && this.worker) {
-                    this.sendCommand(`setoption name Skill Level value ${level}`);
-                }
-            }
-
-            updateStatus(type, message) {
-                this.statusElement.className = `ai-status ${type}`;
-                this.statusElement.textContent = message;
-            }
-        }
-    </script>
-
-    <script>
-        // Main Chess Game Implementation with Chess.js
-        class ChessGamePro {
+        // Simple chess game with chess.js integration (v2 style but improved)
+        class SimpleChessGame {
             constructor() {
                 // Initialize chess.js
                 this.chess = new Chess();
-                window.chess = this.chess; // Make it globally accessible for AI
-                
                 this.selectedSquare = null;
                 this.gameMode = 'human';
-                this.stockfishEngine = new StockfishEngine();
                 
                 this.pieceSymbols = {
                     'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
                     'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
                 };
                 
+                this.init();
+            }
+
+            init() {
                 this.initializeBoard();
                 this.setupEventListeners();
                 this.updateDisplay();
@@ -814,24 +437,18 @@
                         return;
                     }
                     
-                    // Try to make the move
-                    const move = {
-                        from: this.selectedSquare,
-                        to: square,
-                        promotion: 'q' // Default promotion, will be overridden by dialog
-                    };
-                    
-                    // Check if it's a pawn promotion
+                    // Check for pawn promotion
                     const piece = this.chess.get(this.selectedSquare);
                     if (piece && piece.type === 'p' && 
                         ((piece.color === 'w' && square[1] === '8') || 
                          (piece.color === 'b' && square[1] === '1'))) {
-                        this.showPromotionDialog(move);
+                        this.showPromotionDialog(this.selectedSquare, square);
                         return;
                     }
                     
-                    const result = this.chess.move(move);
-                    if (result) {
+                    // Try to make the move
+                    const move = this.chess.move({ from: this.selectedSquare, to: square });
+                    if (move) {
                         this.clearSelection();
                         this.updateDisplay();
                         
@@ -863,18 +480,13 @@
 
             clearSelection() {
                 this.selectedSquare = null;
+                this.clearHighlights();
                 this.updateDisplay();
             }
 
             highlightValidMoves(square) {
                 const moves = this.chess.moves({ square: square, verbose: true });
                 
-                // Clear all highlights
-                document.querySelectorAll('.square').forEach(sq => {
-                    sq.classList.remove('valid-move');
-                });
-                
-                // Add highlights for valid moves
                 moves.forEach(move => {
                     const targetSquare = document.querySelector(`[data-square="${move.to}"]`);
                     if (targetSquare) {
@@ -883,12 +495,17 @@
                 });
             }
 
-            showPromotionDialog(move) {
+            clearHighlights() {
+                document.querySelectorAll('.square').forEach(sq => {
+                    sq.classList.remove('valid-move');
+                });
+            }
+
+            showPromotionDialog(from, to) {
                 const dialog = document.getElementById('promotion-dialog');
                 const pieces = document.getElementById('promotion-pieces');
                 const isWhite = this.chess.turn() === 'w';
                 
-                // Update piece symbols
                 const promotionPieces = pieces.querySelectorAll('.promotion-piece');
                 promotionPieces[0].textContent = isWhite ? '♕' : '♛'; // Queen
                 promotionPieces[1].textContent = isWhite ? '♖' : '♜'; // Rook
@@ -897,20 +514,13 @@
                 
                 dialog.style.display = 'flex';
                 
-                // Remove existing listeners
                 promotionPieces.forEach(piece => {
-                    piece.replaceWith(piece.cloneNode(true));
-                });
-                
-                // Add new listeners
-                const newPromotionPieces = document.getElementById('promotion-pieces').querySelectorAll('.promotion-piece');
-                newPromotionPieces.forEach(piece => {
-                    piece.addEventListener('click', () => {
-                        move.promotion = piece.dataset.piece;
+                    piece.onclick = () => {
+                        const promotion = piece.dataset.piece;
                         dialog.style.display = 'none';
                         
-                        const result = this.chess.move(move);
-                        if (result) {
+                        const move = this.chess.move({ from, to, promotion });
+                        if (move) {
                             this.clearSelection();
                             this.updateDisplay();
                             
@@ -918,28 +528,21 @@
                                 setTimeout(() => this.makeAIMove(), 500);
                             }
                         }
-                    });
+                    };
                 });
             }
 
-            async makeAIMove() {
-                if (this.chess.turn() !== 'b' || this.gameMode !== 'ai') return;
-
-                const fen = this.chess.fen();
-                const moveString = await this.stockfishEngine.getBestMove(fen);
+            makeAIMove() {
+                const moves = this.chess.moves({ verbose: true });
+                if (moves.length === 0) return;
                 
-                if (moveString) {
-                    const move = {
-                        from: moveString.substring(0, 2),
-                        to: moveString.substring(2, 4),
-                        promotion: moveString[4] || undefined
-                    };
-                    
-                    const result = this.chess.move(move);
-                    if (result) {
-                        this.updateDisplay();
-                    }
-                }
+                // Simple AI: prefer captures, then random
+                const captures = moves.filter(move => move.captured);
+                const selectedMoves = captures.length > 0 ? captures : moves;
+                
+                const randomMove = selectedMoves[Math.floor(Math.random() * selectedMoves.length)];
+                this.chess.move(randomMove);
+                this.updateDisplay();
             }
 
             updateDisplay() {
@@ -952,10 +555,8 @@
                     
                     square.textContent = piece ? this.pieceSymbols[piece.color === 'w' ? piece.type.toUpperCase() : piece.type] : '';
                     
-                    // Clear styling
-                    square.classList.remove('selected', 'valid-move', 'in-check');
+                    square.classList.remove('selected', 'in-check');
                     
-                    // Add selection highlight
                     if (this.selectedSquare === squareName) {
                         square.classList.add('selected');
                     }
@@ -972,76 +573,24 @@
                 
                 whiteIndicator.classList.toggle('current-turn', this.chess.turn() === 'w');
                 blackIndicator.classList.toggle('current-turn', this.chess.turn() === 'b');
-
-                // Update game status
-                this.updateGameStatus();
-                
-                // Update captured pieces
-                this.updateCapturedPieces();
-            }
-
-            updateGameStatus() {
-                const statusElement = document.getElementById('game-status');
-                const turn = this.chess.turn() === 'w' ? 'White' : 'Black';
-                
-                if (this.chess.isCheckmate()) {
-                    const winner = this.chess.turn() === 'w' ? 'Black' : 'White';
-                    statusElement.textContent = `🏆 Checkmate! ${winner} Wins!`;
-                    statusElement.className = 'game-status checkmate';
-                } else if (this.chess.isStalemate()) {
-                    statusElement.textContent = '🤝 Stalemate! Draw!';
-                    statusElement.className = 'game-status stalemate';
-                } else if (this.chess.isDraw()) {
-                    statusElement.textContent = '🤝 Draw!';
-                    statusElement.className = 'game-status stalemate';
-                } else if (this.chess.inCheck()) {
-                    statusElement.textContent = `⚠️ ${turn} in Check!`;
-                    statusElement.className = 'game-status check';
-                } else {
-                    statusElement.textContent = `♔ ${turn} to Move`;
-                    statusElement.className = 'game-status normal';
-                }
-            }
-
-            updateCapturedPieces() {
-                const history = this.chess.history({ verbose: true });
-                const whiteCaptured = [];
-                const blackCaptured = [];
-                
-                history.forEach(move => {
-                    if (move.captured) {
-                        const capturedPiece = move.captured;
-                        const pieceSymbol = this.pieceSymbols[move.color === 'w' ? capturedPiece : capturedPiece.toUpperCase()];
-                        
-                        if (move.color === 'w') {
-                            whiteCaptured.push(pieceSymbol);
-                        } else {
-                            blackCaptured.push(pieceSymbol);
-                        }
-                    }
-                });
-                
-                document.getElementById('white-captured').innerHTML = whiteCaptured
-                    .map(piece => `<span class="captured-piece">${piece}</span>`).join('');
-                
-                document.getElementById('black-captured').innerHTML = blackCaptured
-                    .map(piece => `<span class="captured-piece">${piece}</span>`).join('');
             }
 
             newGame() {
                 this.chess.reset();
                 this.selectedSquare = null;
+                this.clearHighlights();
                 this.updateDisplay();
             }
 
             undoMove() {
                 const move = this.chess.undo();
                 if (move) {
-                    // If playing against AI, undo AI move too
+                    // If AI mode, undo AI move too
                     if (this.gameMode === 'ai' && this.chess.turn() === 'b') {
                         this.chess.undo();
                     }
                     this.selectedSquare = null;
+                    this.clearHighlights();
                     this.updateDisplay();
                 }
             }
@@ -1049,19 +598,8 @@
             showHint() {
                 const moves = this.chess.moves({ verbose: true });
                 if (moves.length > 0) {
-                    // Prioritize captures and checks
                     const captures = moves.filter(move => move.captured);
-                    const checks = moves.filter(move => {
-                        this.chess.move(move);
-                        const inCheck = this.chess.inCheck();
-                        this.chess.undo();
-                        return inCheck;
-                    });
-                    
-                    let hintMoves = moves;
-                    if (captures.length > 0) hintMoves = captures;
-                    else if (checks.length > 0) hintMoves = checks;
-                    
+                    const hintMoves = captures.length > 0 ? captures : moves;
                     const randomMove = hintMoves[Math.floor(Math.random() * hintMoves.length)];
                     this.selectSquare(randomMove.from);
                 }
@@ -1093,28 +631,17 @@
                     this.changeTheme(e.target.value);
                 });
 
-                document.getElementById('random-theme').addEventListener('click', () => {
-                    const themes = ['classic', 'neon', 'wood', 'ocean', 'sunset', 'forest', 'royal'];
-                    const randomTheme = themes[Math.floor(Math.random() * themes.length)];
-                    this.changeTheme(randomTheme);
-                    document.getElementById('theme-select').value = randomTheme;
-                });
-
                 // Game controls
                 document.getElementById('new-game').addEventListener('click', () => this.newGame());
                 document.getElementById('undo-move').addEventListener('click', () => this.undoMove());
                 document.getElementById('show-hint').addEventListener('click', () => this.showHint());
-
-                // Difficulty change
-                document.getElementById('difficulty-select').addEventListener('change', (e) => {
-                    this.stockfishEngine.setDifficulty(parseInt(e.target.value));
-                });
             }
         }
 
         // Initialize the game when the page loads
         window.addEventListener('DOMContentLoaded', () => {
-            window.chessGame = new ChessGamePro();
+            window.chessGame = new SimpleChessGame();
+            console.log('🎮 Mathias Chess v5 loaded with chess.js!');
         });
     </script>
 </body>

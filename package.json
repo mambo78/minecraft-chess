@@ -1,31 +1,23 @@
 {
-  "name": "chess-game-stockfish",
-  "version": "2.0.0",
-  "description": "Chess game with Stockfish engine and themed pieces",
-  "main": "server/server.js",
+  "name": "mathias-chess-v5",
+  "version": "5.0.0",
+  "description": "Mathias Chess v5 - Simple and reliable like v2 but with chess.js",
+  "main": "server-simple.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "nodemon server/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server-simple.js",
+    "test": "node test-server.js",
+    "simple": "node server-simple.js"
   },
-  "keywords": [
-    "chess",
-    "stockfish", 
-    "game",
-    "ai",
-    "themes"
-  ],
-  "author": "Mateo",
-  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
+    "chess.js": "^1.0.0-beta.6",
     "socket.io": "^4.7.2",
     "cors": "^2.8.5"
   },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
   "engines": {
-    "node": ">=16.0.0"
-  }
+    "node": ">=14.0.0"
+  },
+  "keywords": ["chess", "game", "nodejs", "express", "simple"],
+  "author": "Mathias",
+  "license": "MIT"
 }

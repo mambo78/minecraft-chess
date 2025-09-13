@@ -9,10 +9,11 @@ class MathiasChess {
         this.isAiGame = false;
         
         this.initializeGame();
-        this.bindEvents();
         
-        // Apply initial theme
+        // Apply initial theme first
         this.themes.applyTheme();
+        
+        this.bindEvents();
         
         console.log('🎮 Mathias Chess initialized successfully!');
     }
@@ -319,6 +320,14 @@ class MathiasChess {
                 
                 if (success) {
                     console.log('🤖 AI move successful, updating display');
+                    
+                    // Handle AI pawn promotion (auto-promote to queen)
+                    const lastMove = this.chess.gameHistory[this.chess.gameHistory.length - 1];
+                    if (lastMove && lastMove.needsPromotion) {
+                        this.chess.promotePawn('queen');
+                        console.log('🤖 AI promoted pawn to queen');
+                    }
+                    
                     this.ui.updateDisplay();
                     
                     // Check game status after AI move
@@ -330,7 +339,7 @@ class MathiasChess {
                     } else if (status === 'stalemate') {
                         this.ui.showMessage('Stalemate! Game is a draw.', 'info');
                     }
-                } else {
+                }
                     console.log('🤖 AI move failed!');
                 }
             } else {
@@ -418,24 +427,30 @@ class MathiasChess {
 
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        window.mathiasChess = new MathiasChess();
-        
-        // Enable debug mode with Ctrl+D
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'd') {
-                e.preventDefault();
-                window.mathiasChess.debugMode();
+    // Add small delay to ensure DOM is fully ready
+    setTimeout(() => {
+        try {
+            console.log('🚀 Initializing Mathias Chess...');
+            window.mathiasChess = new MathiasChess();
+            
+            // Enable debug mode with Ctrl+D
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'd') {
+                    e.preventDefault();
+                    window.mathiasChess.debugMode();
+                }
+            });
+            
+            console.log('✅ Mathias Chess initialization complete!');
+        } catch (error) {
+            console.error('❌ Failed to initialize Mathias Chess:', error);
+            
+            // Show error message to user
+            const messageElement = document.getElementById('game-message');
+            if (messageElement) {
+                messageElement.textContent = 'Failed to load game. Please refresh the page.';
+                messageElement.className = 'game-message error show';
             }
-        });
-    } catch (error) {
-        console.error('Failed to initialize Mathias Chess:', error);
-        
-        // Show error message to user
-        const messageElement = document.getElementById('game-message');
-        if (messageElement) {
-            messageElement.textContent = 'Failed to load game. Please refresh the page.';
-            messageElement.className = 'game-message error show';
         }
-    }
+    }, 100);
 });

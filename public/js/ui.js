@@ -8,9 +8,11 @@ class ChessUI {
         this.capturedWhite = document.getElementById('captured-white');
         this.capturedBlack = document.getElementById('captured-black');
         this.moveList = document.getElementById('move-list');
+        this.promotionDialog = document.getElementById('promotion-dialog');
         
         this.initializeBoard();
         this.bindEvents();
+        this.bindPromotionEvents();
         this.updateDisplay();
     }
 
@@ -60,7 +62,21 @@ class ChessUI {
                 );
                 
                 if (success) {
-                    this.showMessage('Move made!', 'success');
+                    const move = this.chess.gameHistory[this.chess.gameHistory.length - 1];
+                    
+                    // Check if this move needs promotion
+                    if (move && move.needsPromotion) {
+                        this.showPromotionDialog(move.promotionSquare);
+                        return; // Don't continue until promotion is chosen
+                    }
+                    
+                    // Check if this was a completed pawn promotion
+                    if (move && move.promotion) {
+                        this.showMessage(`Pawn promoted to ${move.promotion}!`, 'success');
+                    } else {
+                        this.showMessage('Move made!', 'success');
+                    }
+                    
                     this.updateDisplay();
                     
                     // Check game status
@@ -114,7 +130,7 @@ class ChessUI {
             
             // Clear previous content and classes
             square.innerHTML = '';
-            square.classList.remove('selected', 'possible-move', 'attack-move');
+            square.classList.remove('selected', 'possible-move', 'attack-move', 'last-move');
             
             // Add piece if present
             if (piece) {
@@ -128,6 +144,15 @@ class ChessUI {
                 this.selectedSquare.row === row && 
                 this.selectedSquare.col === col) {
                 square.classList.add('selected');
+            }
+            
+            // Highlight last move
+            if (this.chess.lastMove) {
+                const lastMove = this.chess.lastMove;
+                if ((row === lastMove.from.row && col === lastMove.from.col) || 
+                    (row === lastMove.to.row && col === lastMove.to.col)) {
+                    square.classList.add('last-move');
+                }
             }
             
             // Highlight possible moves
@@ -265,6 +290,57 @@ class ChessUI {
             this.showMessage('Move undone', 'info');
         } else {
             this.showMessage('No moves to undo', 'warning');
+        }
+    }
+    
+    bindPromotionEvents() {
+        const promotionBtns = document.querySelectorAll('.promotion-btn');
+        promotionBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const pieceType = e.currentTarget.dataset.piece;
+                this.handlePromotion(pieceType);
+            });
+        });
+    }
+    
+    showPromotionDialog(square) {
+        if (this.promotionDialog) {
+            this.promotionDialog.classList.remove('hidden');
+        }
+    }
+    
+    hidePromotionDialog() {
+        if (this.promotionDialog) {
+            this.promotionDialog.classList.add('hidden');
+        }
+    }
+    
+    handlePromotion(pieceType) {
+        if (this.chess.promotePawn(pieceType)) {
+            this.hidePromotionDialog();
+            this.updateDisplay();
+            this.showMessage(`Pawn promoted to ${pieceType}!`, 'success');
+            
+            // Continue with the game flow (check game status, AI move, etc.)
+            this.continueAfterPromotion();
+        }
+    }
+    
+    continueAfterPromotion() {
+        // Check game status after promotion
+        const status = this.chess.gameStatus;
+        if (status === 'check') {
+            this.showMessage(`${this.chess.currentPlayer} is in check!`, 'warning');
+        } else if (status === 'checkmate') {
+            const winner = this.chess.currentPlayer === 'white' ? 'Black' : 'White';
+            this.showMessage(`Checkmate! ${winner} wins!`, 'success');
+        } else if (status === 'stalemate') {
+            this.showMessage('Stalemate! Game is a draw.', 'info');
+        }
+        
+        // Trigger AI move if needed (this will be called from main.js)
+        if (window.mathiasChess && window.mathiasChess.isAiGame && this.chess.currentPlayer === 'black') {
+            setTimeout(() => window.mathiasChess.makeAiMove(), 100);
         }
     }
 }

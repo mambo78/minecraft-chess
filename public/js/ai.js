@@ -135,6 +135,32 @@ class ChessAI {
         const allMoves = this.getAllPossibleMoves('black');
         
         if (allMoves.length === 0) return null;
+        
+        // Avoid repetitive moves by filtering out moves that repeat the last move
+        let filteredMoves = allMoves;
+        if (this.chess.gameHistory.length >= 2) {
+            const lastMove = this.chess.gameHistory[this.chess.gameHistory.length - 1];
+            const secondLastMove = this.chess.gameHistory[this.chess.gameHistory.length - 2];
+            
+            // If the last two moves were the same piece going back and forth
+            if (lastMove && secondLastMove && 
+                lastMove.from.row === secondLastMove.to.row && 
+                lastMove.from.col === secondLastMove.to.col &&
+                lastMove.to.row === secondLastMove.from.row && 
+                lastMove.to.col === secondLastMove.from.col) {
+                
+                // Filter out moves that would repeat this pattern
+                filteredMoves = allMoves.filter(move => 
+                    !(move.from.row === lastMove.to.row && 
+                      move.from.col === lastMove.to.col &&
+                      move.to.row === lastMove.from.row && 
+                      move.to.col === lastMove.from.col));
+                
+                if (filteredMoves.length > 0) {
+                    allMoves = filteredMoves;
+                }
+            }
+        }
 
         // For easy mode, sometimes make random moves
         if (difficulty.randomness > 0 && Math.random() < difficulty.randomness) {
@@ -145,7 +171,10 @@ class ChessAI {
         let bestMove = null;
         let bestScore = -Infinity;
         
-        for (const move of allMoves) {
+        // Only consider the first 20 moves for performance
+        const movesToEvaluate = allMoves.slice(0, 20);
+        
+        for (const move of movesToEvaluate) {
             // Make temporary move
             const originalPiece = this.chess.getPiece(move.to.row, move.to.col);
             this.chess.setPiece(move.to.row, move.to.col, move.piece);
@@ -191,14 +220,14 @@ class ChessAI {
                 this.chess.setPiece(move.to.row, move.to.col, move.piece);
                 this.chess.setPiece(move.from.row, move.from.col, null);
                 
-                const eval = this.minimax(depth - 1, alpha, beta, false);
+                const evaluation = this.minimax(depth - 1, alpha, beta, false);
                 
                 // Undo move
                 this.chess.setPiece(move.from.row, move.from.col, move.piece);
                 this.chess.setPiece(move.to.row, move.to.col, originalPiece);
                 
-                maxEval = Math.max(maxEval, eval);
-                alpha = Math.max(alpha, eval);
+                maxEval = Math.max(maxEval, evaluation);
+                alpha = Math.max(alpha, evaluation);
                 
                 if (beta <= alpha) break; // Alpha-beta pruning
             }
@@ -211,14 +240,14 @@ class ChessAI {
                 this.chess.setPiece(move.to.row, move.to.col, move.piece);
                 this.chess.setPiece(move.from.row, move.from.col, null);
                 
-                const eval = this.minimax(depth - 1, alpha, beta, true);
+                const evaluation = this.minimax(depth - 1, alpha, beta, true);
                 
                 // Undo move
                 this.chess.setPiece(move.from.row, move.from.col, move.piece);
                 this.chess.setPiece(move.to.row, move.to.col, originalPiece);
                 
-                minEval = Math.min(minEval, eval);
-                beta = Math.min(beta, eval);
+                minEval = Math.min(minEval, evaluation);
+                beta = Math.min(beta, evaluation);
                 
                 if (beta <= alpha) break; // Alpha-beta pruning
             }
@@ -229,6 +258,15 @@ class ChessAI {
     evaluatePosition() {
         let score = 0;
         
+        // Heavy penalty for being in check
+        if (this.chess.isKingInCheck('black')) {
+            score -= 5000; // Massive penalty
+        }
+        if (this.chess.isKingInCheck('white')) {
+            score += 5000; // Bonus if opponent in check
+        }
+        
+        // Evaluate material and position
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 const piece = this.chess.getPiece(row, col);

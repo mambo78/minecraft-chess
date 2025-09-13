@@ -130,6 +130,31 @@
 
     <!-- Message display -->
     <div id="game-message" class="game-message"></div>
+    
+    <!-- Pawn Promotion Dialog -->
+    <div id="promotion-dialog" class="promotion-dialog hidden">
+        <div class="promotion-content">
+            <h3>Choose Promotion Piece</h3>
+            <div class="promotion-pieces">
+                <button class="promotion-btn" data-piece="queen">
+                    <span class="piece-display" id="promo-queen">♕</span>
+                    <span>Queen</span>
+                </button>
+                <button class="promotion-btn" data-piece="rook">
+                    <span class="piece-display" id="promo-rook">♖</span>
+                    <span>Rook</span>
+                </button>
+                <button class="promotion-btn" data-piece="bishop">
+                    <span class="piece-display" id="promo-bishop">♗</span>
+                    <span>Bishop</span>
+                </button>
+                <button class="promotion-btn" data-piece="knight">
+                    <span class="piece-display" id="promo-knight">♘</span>
+                    <span>Knight</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>

@@ -89,6 +89,8 @@
 
         let currentPlayer = 'white';
         let selectedSquare = null;
+        let gameMode = 'human'; // 'human' or 'ai'
+        let aiThinking = false;
 
         let pieceSymbols = {
             'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
@@ -139,6 +141,16 @@
         }
 
         function handleSquareClick(rank, file) {
+            // Don't allow moves during AI turn
+            if (gameMode === 'ai' && currentPlayer === 'black' && !aiThinking) {
+                return;
+            }
+            
+            // Don't allow moves while AI is thinking
+            if (aiThinking) {
+                return;
+            }
+            
             const piece = board[7-rank][file];
             
             if (selectedSquare) {
@@ -148,8 +160,13 @@
                     selectedSquare = null;
                 } else {
                     // Make move
-                    makeMove(selectedSquare.rank, selectedSquare.file, rank, file);
+                    const moveSuccessful = makeMove(selectedSquare.rank, selectedSquare.file, rank, file);
                     selectedSquare = null;
+                    
+                    // If in AI mode and move was successful, trigger AI move
+                    if (gameMode === 'ai' && moveSuccessful && currentPlayer === 'black') {
+                        setTimeout(makeAIMove, 800);
+                    }
                 }
             } else {
                 // Select piece
@@ -172,17 +189,124 @@
 
         function makeMove(fromRank, fromFile, toRank, toFile) {
             const piece = board[7-fromRank][fromFile];
+            
+            // Basic move validation - check if piece exists and belongs to current player
+            if (!piece || !isCurrentPlayerPiece(piece)) {
+                return false;
+            }
+            
+            // Make the move
             board[7-toRank][toFile] = piece;
             board[7-fromRank][fromFile] = null;
             
             // Switch turns
             currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
-            showMessage(`${currentPlayer === 'white' ? 'White' : 'Black'}'s turn`, 2000);
+            
+            const playerName = currentPlayer === 'white' ? 'White' : 'Black';
+            if (gameMode === 'ai' && currentPlayer === 'black') {
+                showMessage('🤖 AI is thinking...', 1500);
+            } else {
+                showMessage(`${playerName}'s turn`, 1500);
+            }
+            
+            return true;
+        }
+        
+        function getAllPossibleMoves(player) {
+            const moves = [];
+            
+            for (let rank = 0; rank < 8; rank++) {
+                for (let file = 0; file < 8; file++) {
+                    const piece = board[rank][file];
+                    if (piece && ((player === 'white' && piece === piece.toUpperCase()) || 
+                                 (player === 'black' && piece === piece.toLowerCase()))) {
+                        
+                        // Simple move generation - try all squares
+                        for (let toRank = 0; toRank < 8; toRank++) {
+                            for (let toFile = 0; toFile < 8; toFile++) {
+                                if (rank !== toRank || file !== toFile) {
+                                    const targetPiece = board[toRank][toFile];
+                                    // Basic check - can't capture own pieces
+                                    if (!targetPiece || 
+                                        (player === 'white' && targetPiece === targetPiece.toLowerCase()) ||
+                                        (player === 'black' && targetPiece === targetPiece.toUpperCase())) {
+                                        moves.push({
+                                            from: { rank, file },
+                                            to: { rank: toRank, file: toFile },
+                                            piece: piece,
+                                            captured: targetPiece
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return moves;
+        }
+        
+        function makeAIMove() {
+            if (currentPlayer !== 'black' || gameMode !== 'ai') {
+                return;
+            }
+            
+            aiThinking = true;
+            showMessage('🤖 AI is thinking...', 0);
+            
+            // Get all possible moves for black
+            const possibleMoves = getAllPossibleMoves('black');
+            
+            if (possibleMoves.length === 0) {
+                aiThinking = false;
+                showMessage('🏁 No moves available!', 3000);
+                return;
+            }
+            
+            // Simple AI strategy: prefer captures, then random
+            let selectedMoves = possibleMoves.filter(move => move.captured);
+            
+            if (selectedMoves.length === 0) {
+                selectedMoves = possibleMoves;
+            }
+            
+            // Pick a random move from selected moves
+            const randomMove = selectedMoves[Math.floor(Math.random() * selectedMoves.length)];
+            
+            // Make the move
+            board[randomMove.to.rank][randomMove.to.file] = randomMove.piece;
+            board[randomMove.from.rank][randomMove.from.file] = null;
+            
+            // Switch back to white
+            currentPlayer = 'white';
+            aiThinking = false;
+            
+            // Update display
+            updateBoard();
+            updateTurnDisplay();
+            
+            if (randomMove.captured) {
+                showMessage(`🤖 AI captured your ${randomMove.captured}!`, 2500);
+            } else {
+                showMessage("Your turn!", 2000);
+            }
         }
 
         function updateTurnDisplay() {
             const turnDisplay = document.getElementById('turn-display');
-            turnDisplay.textContent = `${currentPlayer === 'white' ? 'White' : 'Black'}'s Turn`;
+            
+            if (aiThinking) {
+                turnDisplay.textContent = '🤖 AI Thinking...';
+            } else if (gameMode === 'ai') {
+                if (currentPlayer === 'white') {
+                    turnDisplay.textContent = 'Your Turn';
+                } else {
+                    turnDisplay.textContent = '🤖 AI Turn';
+                }
+            } else {
+                turnDisplay.textContent = `${currentPlayer === 'white' ? 'White' : 'Black'}'s Turn`;
+            }
         }
 
         // Themes definitions
@@ -283,6 +407,35 @@
                 changeTheme(randomTheme);
             });
 
+            // Game mode buttons
+            document.getElementById('human-mode-btn').addEventListener('click', () => {
+                gameMode = 'human';
+                aiThinking = false;
+                document.getElementById('human-mode-btn').classList.add('active');
+                document.getElementById('ai-mode-btn').classList.remove('active');
+                showMessage('👥 Human vs Human mode activated!', 2000);
+                
+                // Reset to white's turn
+                currentPlayer = 'white';
+                selectedSquare = null;
+                updateBoard();
+                updateTurnDisplay();
+            });
+            
+            document.getElementById('ai-mode-btn').addEventListener('click', () => {
+                gameMode = 'ai';
+                aiThinking = false;
+                document.getElementById('ai-mode-btn').classList.add('active');
+                document.getElementById('human-mode-btn').classList.remove('active');
+                showMessage('🤖 AI mode activated! You play as White.', 2000);
+                
+                // Reset to white's turn (player always starts)
+                currentPlayer = 'white';
+                selectedSquare = null;
+                updateBoard();
+                updateTurnDisplay();
+            });
+            
             // Undo button (placeholder)
             document.getElementById('undo-btn').addEventListener('click', () => {
                 showMessage('⚖ Undo feature coming soon!', 2000);

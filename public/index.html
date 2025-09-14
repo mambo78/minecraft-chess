@@ -243,6 +243,130 @@
             return true;
         }
 
+        function getValidMovesForPiece(piece, fromRow, fromCol, board) {
+            const moves = [];
+            const pieceType = piece.toLowerCase();
+            const isBlack = piece === piece.toLowerCase();
+            
+            function addMoveIfValid(toRow, toCol) {
+                if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
+                    const target = board[toRow][toCol];
+                    // Can move to empty square or capture opponent piece
+                    if (!target || (isBlack && target === target.toUpperCase()) || (!isBlack && target === target.toLowerCase())) {
+                        moves.push({
+                            fromRow, fromCol, toRow, toCol, 
+                            piece, captured: target
+                        });
+                    }
+                }
+            }
+            
+            switch (pieceType) {
+                case 'p': // Pawn
+                    if (isBlack) {
+                        // Black pawns move down (increasing row)
+                        // Forward move
+                        if (fromRow < 7 && !board[fromRow + 1][fromCol]) {
+                            addMoveIfValid(fromRow + 1, fromCol);
+                            // Two squares from starting position
+                            if (fromRow === 1 && !board[fromRow + 2][fromCol]) {
+                                addMoveIfValid(fromRow + 2, fromCol);
+                            }
+                        }
+                        // Diagonal captures
+                        if (fromRow < 7) {
+                            if (fromCol > 0 && board[fromRow + 1][fromCol - 1] && board[fromRow + 1][fromCol - 1] === board[fromRow + 1][fromCol - 1].toUpperCase()) {
+                                addMoveIfValid(fromRow + 1, fromCol - 1);
+                            }
+                            if (fromCol < 7 && board[fromRow + 1][fromCol + 1] && board[fromRow + 1][fromCol + 1] === board[fromRow + 1][fromCol + 1].toUpperCase()) {
+                                addMoveIfValid(fromRow + 1, fromCol + 1);
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'r': // Rook
+                    // Horizontal and vertical moves
+                    const rookDirections = [[0,1], [0,-1], [1,0], [-1,0]];
+                    for (let [dr, dc] of rookDirections) {
+                        for (let i = 1; i < 8; i++) {
+                            const newRow = fromRow + dr * i;
+                            const newCol = fromCol + dc * i;
+                            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                                const target = board[newRow][newCol];
+                                if (!target) {
+                                    addMoveIfValid(newRow, newCol);
+                                } else {
+                                    if ((isBlack && target === target.toUpperCase()) || (!isBlack && target === target.toLowerCase())) {
+                                        addMoveIfValid(newRow, newCol);
+                                    }
+                                    break; // Stop after hitting a piece
+                                }
+                            } else break;
+                        }
+                    }
+                    break;
+                    
+                case 'n': // Knight
+                    const knightMoves = [[2,1], [2,-1], [-2,1], [-2,-1], [1,2], [1,-2], [-1,2], [-1,-2]];
+                    for (let [dr, dc] of knightMoves) {
+                        addMoveIfValid(fromRow + dr, fromCol + dc);
+                    }
+                    break;
+                    
+                case 'b': // Bishop
+                    const bishopDirections = [[1,1], [1,-1], [-1,1], [-1,-1]];
+                    for (let [dr, dc] of bishopDirections) {
+                        for (let i = 1; i < 8; i++) {
+                            const newRow = fromRow + dr * i;
+                            const newCol = fromCol + dc * i;
+                            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                                const target = board[newRow][newCol];
+                                if (!target) {
+                                    addMoveIfValid(newRow, newCol);
+                                } else {
+                                    if ((isBlack && target === target.toUpperCase()) || (!isBlack && target === target.toLowerCase())) {
+                                        addMoveIfValid(newRow, newCol);
+                                    }
+                                    break;
+                                }
+                            } else break;
+                        }
+                    }
+                    break;
+                    
+                case 'q': // Queen (combination of rook and bishop)
+                    const queenDirections = [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]];
+                    for (let [dr, dc] of queenDirections) {
+                        for (let i = 1; i < 8; i++) {
+                            const newRow = fromRow + dr * i;
+                            const newCol = fromCol + dc * i;
+                            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                                const target = board[newRow][newCol];
+                                if (!target) {
+                                    addMoveIfValid(newRow, newCol);
+                                } else {
+                                    if ((isBlack && target === target.toUpperCase()) || (!isBlack && target === target.toLowerCase())) {
+                                        addMoveIfValid(newRow, newCol);
+                                    }
+                                    break;
+                                }
+                            } else break;
+                        }
+                    }
+                    break;
+                    
+                case 'k': // King
+                    const kingMoves = [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]];
+                    for (let [dr, dc] of kingMoves) {
+                        addMoveIfValid(fromRow + dr, fromCol + dc);
+                    }
+                    break;
+            }
+            
+            return moves;
+        }
+        
         function makeAIMove() {
             console.log('🤖 makeAIMove() called');
             console.log('🤖 currentPlayer:', currentPlayer);
@@ -257,27 +381,16 @@
             
             console.log('✅ AI conditions met, finding moves...');
             
-            // Simple AI: find all black pieces and make a random valid move
+            // Simple AI: find all black pieces and make valid chess moves
             const blackMoves = [];
             
             for (let fromRow = 0; fromRow < 8; fromRow++) {
                 for (let fromCol = 0; fromCol < 8; fromCol++) {
                     const piece = board[fromRow][fromCol];
                     if (piece && piece === piece.toLowerCase()) {
-                        // Try adjacent moves
-                        for (let toRow = Math.max(0, fromRow-1); toRow <= Math.min(7, fromRow+1); toRow++) {
-                            for (let toCol = Math.max(0, fromCol-1); toCol <= Math.min(7, fromCol+1); toCol++) {
-                                if (fromRow !== toRow || fromCol !== toCol) {
-                                    const target = board[toRow][toCol];
-                                    if (!target || target === target.toUpperCase()) {
-                                        blackMoves.push({
-                                            fromRow, fromCol, toRow, toCol, 
-                                            piece, captured: target
-                                        });
-                                    }
-                                }
-                            }
-                        }
+                        // Get valid moves for this piece type
+                        const validMoves = getValidMovesForPiece(piece, fromRow, fromCol, board);
+                        blackMoves.push(...validMoves);
                     }
                 }
             }

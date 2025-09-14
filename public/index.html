@@ -164,7 +164,9 @@
                     selectedSquare = null;
                     
                     // If in AI mode and move was successful, trigger AI move
+                    console.log('Move made. Game mode:', gameMode, 'Move successful:', moveSuccessful, 'Current player:', currentPlayer);
                     if (gameMode === 'ai' && moveSuccessful && currentPlayer === 'black') {
+                        console.log('Scheduling AI move in 1 second...');
                         setTimeout(makeAIMove, 1000);
                     }
                 }
@@ -214,43 +216,44 @@
         
         function getAllPossibleMoves(player) {
             const moves = [];
+            console.log('Getting moves for player:', player);
+            console.log('Current board state:', board);
             
-            for (let boardRank = 0; boardRank < 8; boardRank++) {
-                for (let file = 0; file < 8; file++) {
-                    const piece = board[boardRank][file];
-                    if (piece && ((player === 'white' && piece === piece.toUpperCase()) || 
-                                 (player === 'black' && piece === piece.toLowerCase()))) {
+            // Find all pieces for the current player
+            for (let boardRow = 0; boardRow < 8; boardRow++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = board[boardRow][col];
+                    
+                    if (piece) {
+                        const isPlayerPiece = (player === 'white' && piece === piece.toUpperCase()) ||
+                                             (player === 'black' && piece === piece.toLowerCase());
                         
-                        // Generate simple moves (adjacent squares for now)
-                        const directions = [
-                            [-1, -1], [-1, 0], [-1, 1],
-                            [0, -1],           [0, 1],
-                            [1, -1], [1, 0], [1, 1]
-                        ];
-                        
-                        for (let [dr, df] of directions) {
-                            const newBoardRank = boardRank + dr;
-                            const newFile = file + df;
+                        if (isPlayerPiece) {
+                            console.log(`Found ${player} piece '${piece}' at [${boardRow}][${col}]`);
                             
-                            if (newBoardRank >= 0 && newBoardRank < 8 && newFile >= 0 && newFile < 8) {
-                                const targetPiece = board[newBoardRank][newFile];
-                                
-                                // Can move to empty square or capture opponent piece
-                                const canMove = !targetPiece || 
-                                    (player === 'white' && targetPiece === targetPiece.toLowerCase()) ||
-                                    (player === 'black' && targetPiece === targetPiece.toUpperCase());
-                                    
-                                if (canMove) {
-                                    // Convert board coordinates to display coordinates
-                                    const fromDisplayRank = 7 - boardRank;
-                                    const toDisplayRank = 7 - newBoardRank;
-                                    
-                                    moves.push({
-                                        from: { boardRank, file, displayRank: fromDisplayRank },
-                                        to: { boardRank: newBoardRank, file: newFile, displayRank: toDisplayRank },
-                                        piece: piece,
-                                        captured: targetPiece
-                                    });
+                            // Try moving this piece to adjacent squares (simple AI)
+                            for (let newRow = Math.max(0, boardRow - 1); newRow <= Math.min(7, boardRow + 1); newRow++) {
+                                for (let newCol = Math.max(0, col - 1); newCol <= Math.min(7, col + 1); newCol++) {
+                                    if (newRow !== boardRow || newCol !== col) {
+                                        const targetPiece = board[newRow][newCol];
+                                        
+                                        // Can move if target is empty or contains opponent piece
+                                        const isEmpty = !targetPiece;
+                                        const isOpponentPiece = targetPiece && 
+                                            ((player === 'white' && targetPiece === targetPiece.toLowerCase()) ||
+                                             (player === 'black' && targetPiece === targetPiece.toUpperCase()));
+                                        
+                                        if (isEmpty || isOpponentPiece) {
+                                            moves.push({
+                                                fromRow: boardRow,
+                                                fromCol: col,
+                                                toRow: newRow,
+                                                toCol: newCol,
+                                                piece: piece,
+                                                captured: targetPiece
+                                            });
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -258,25 +261,30 @@
                 }
             }
             
+            console.log(`Found ${moves.length} possible moves for ${player}`);
             return moves;
         }
         
         function makeAIMove() {
+            console.log('makeAIMove called. Current player:', currentPlayer, 'Game mode:', gameMode);
+            
             if (currentPlayer !== 'black' || gameMode !== 'ai') {
+                console.log('AI move aborted - wrong conditions');
                 return;
             }
             
             aiThinking = true;
             updateTurnDisplay();
+            showMessage('🤖 AI is thinking...', 0);
             
             // Get all possible moves for black
             const possibleMoves = getAllPossibleMoves('black');
             
-            console.log('AI found', possibleMoves.length, 'possible moves');
+            console.log('AI found', possibleMoves.length, 'possible moves:', possibleMoves);
             
             if (possibleMoves.length === 0) {
                 aiThinking = false;
-                showMessage('🏁 No moves available!', 3000);
+                showMessage('🏁 AI has no moves available!', 3000);
                 updateTurnDisplay();
                 return;
             }
@@ -291,11 +299,13 @@
             // Pick a random move from selected moves
             const randomMove = selectedMoves[Math.floor(Math.random() * selectedMoves.length)];
             
-            console.log('AI making move:', randomMove);
+            console.log('AI selected move:', randomMove);
             
-            // Make the move using board coordinates
-            board[randomMove.to.boardRank][randomMove.to.file] = randomMove.piece;
-            board[randomMove.from.boardRank][randomMove.from.file] = null;
+            // Make the move
+            board[randomMove.toRow][randomMove.toCol] = randomMove.piece;
+            board[randomMove.fromRow][randomMove.fromCol] = null;
+            
+            console.log('AI moved', randomMove.piece, 'from [' + randomMove.fromRow + '][' + randomMove.fromCol + '] to [' + randomMove.toRow + '][' + randomMove.toCol + ']');
             
             // Switch back to white
             currentPlayer = 'white';
@@ -442,6 +452,7 @@
             });
             
             document.getElementById('ai-mode-btn').addEventListener('click', () => {
+                console.log('AI mode button clicked');
                 gameMode = 'ai';
                 aiThinking = false;
                 document.getElementById('ai-mode-btn').classList.add('active');
@@ -453,6 +464,8 @@
                 selectedSquare = null;
                 updateBoard();
                 updateTurnDisplay();
+                
+                console.log('Game mode set to:', gameMode, 'Current player:', currentPlayer);
             });
             
             // Undo button (placeholder)

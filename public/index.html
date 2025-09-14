@@ -126,8 +126,11 @@
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="https://unpkg.com/chess.js@1.0.0-beta.6/dist/chess.min.js"></script>
+    <!-- Try multiple CDNs for chess.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.1/chess.min.js" 
+            onerror="this.onerror=null; this.src='https://unpkg.com/chess.js@0.12.1/dist/chess.min.js';"></script>
     <script src="js/themes.js"></script>
+    <script src="js/debug.js"></script>
     <script src="js/chess-logic.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/game.js"></script>

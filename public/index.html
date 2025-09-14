@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 Chess Game v2 Style</title>
+    <title>🎮 Mathias Chess v6</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=VT323:wght@400&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="game-container">
         <header class="header">
-            <h1 class="title">🎮 Chess Game v2 🎮</h1>
+            <h1 class="title">🎮 Mathias Chess v6 🎮</h1>
             <div class="player-info">
                 <span class="white-info">White</span>
                 <div class="turn-display" id="turn-display">White's Turn</div>
@@ -51,6 +51,10 @@
                         <option value="classic">Classic Chess</option>
                         <option value="minecraft">🎮 Minecraft</option>
                         <option value="mario">🍄 Mario Bros</option>
+                        <option value="sonic">💨 Sonic</option>
+                        <option value="pokemon">⚡ Pokémon</option>
+                        <option value="space">🚀 Space</option>
+                        <option value="medieval">⚔️ Medieval</option>
                     </select>
                     <button id="random-theme-btn" class="btn">🎲 Random Theme</button>
                 </div>
@@ -86,7 +90,7 @@
         let currentPlayer = 'white';
         let selectedSquare = null;
 
-        const pieceSymbols = {
+        let pieceSymbols = {
             'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
             'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
         };
@@ -181,7 +185,72 @@
             turnDisplay.textContent = `${currentPlayer === 'white' ? 'White' : 'Black'}'s Turn`;
         }
 
+        // Themes definitions
+        const themes = {
+            classic: {
+                name: '♓ Classic Chess',
+                pieces: {
+                    'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+                    'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+                }
+            },
+            minecraft: {
+                name: '🎮 Minecraft',
+                pieces: {
+                    'K': '🛡️', 'Q': '👑', 'R': '🏰', 'B': '⛪', 'N': '🐎', 'P': '🧑',
+                    'k': '🛡️', 'q': '👑', 'r': '🏰', 'b': '⛪', 'n': '🐎', 'p': '🧑'
+                }
+            },
+            mario: {
+                name: '🍄 Mario Bros',
+                pieces: {
+                    'K': '👑', 'Q': '🍄', 'R': '🟥', 'B': '🔴', 'N': '🎽', 'P': '🔴',
+                    'k': '👾', 'q': '🍄', 'r': '🟪', 'b': '🔵', 'n': '🎽', 'p': '🔵'
+                }
+            },
+            sonic: {
+                name: '💨 Sonic',
+                pieces: {
+                    'K': '💨', 'Q': '✨', 'R': '🗿', 'B': '⚡', 'N': '🏃', 'P': '🔵',
+                    'k': '🤔', 'q': '✨', 'r': '🗿', 'b': '⚡', 'n': '🏃', 'p': '🔴'
+                }
+            },
+            pokemon: {
+                name: '⚡ Pokémon',
+                pieces: {
+                    'K': '⚡', 'Q': '🔥', 'R': '💧', 'B': '🍃', 'N': '⭐', 'P': '⚫',
+                    'k': '🌙', 'q': '🔥', 'r': '💧', 'b': '🍃', 'n': '⭐', 'p': '⚪'
+                }
+            },
+            space: {
+                name: '🚀 Space',
+                pieces: {
+                    'K': '🚀', 'Q': '🛸', 'R': '🌌', 'B': '⭐', 'N': '🛡️', 'P': '👽',
+                    'k': '🛸', 'q': '🌌', 'r': '⭐', 'b': '🛡️', 'n': '👽', 'p': '🌙'
+                }
+            },
+            medieval: {
+                name: '⚔️ Medieval',
+                pieces: {
+                    'K': '👑', 'Q': '👸', 'R': '🏰', 'B': '⛪', 'N': '🐎', 'P': '⚔️',
+                    'k': '👑', 'q': '👸', 'r': '🏰', 'b': '⛪', 'n': '🐎', 'p': '⚔️'
+                }
+            }
+        };
+
+        let currentTheme = 'classic';
+
+        function changeTheme(themeName) {
+            if (themes[themeName]) {
+                currentTheme = themeName;
+                pieceSymbols = themes[themeName].pieces;
+                updateBoard();
+                showMessage(`Theme changed to ${themes[themeName].name}! 🎨`, 2000);
+            }
+        }
+
         function setupControls() {
+            // New game button
             document.getElementById('new-game-btn').addEventListener('click', () => {
                 // Reset board
                 board = [
@@ -199,6 +268,24 @@
                 updateBoard();
                 updateTurnDisplay();
                 showMessage('🔄 New game started!', 2000);
+            });
+
+            // Theme selector
+            document.getElementById('theme-selector').addEventListener('change', (e) => {
+                changeTheme(e.target.value);
+            });
+
+            // Random theme button
+            document.getElementById('random-theme-btn').addEventListener('click', () => {
+                const themeNames = Object.keys(themes);
+                const randomTheme = themeNames[Math.floor(Math.random() * themeNames.length)];
+                document.getElementById('theme-selector').value = randomTheme;
+                changeTheme(randomTheme);
+            });
+
+            // Undo button (placeholder)
+            document.getElementById('undo-btn').addEventListener('click', () => {
+                showMessage('⚖ Undo feature coming soon!', 2000);
             });
         }
 

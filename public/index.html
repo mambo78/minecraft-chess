@@ -198,10 +198,16 @@
                     selectedSquare = null;
                     
                     // Trigger AI move if in AI mode and it's now black's turn
+                    console.log('After move: gameMode =', gameMode, 'moveSuccessful =', moveSuccessful, 'currentPlayer =', currentPlayer);
                     if (gameMode === 'ai' && moveSuccessful && currentPlayer === 'black') {
+                        console.log('✅ Triggering AI move in 800ms...');
+                        showMessage('🤖 AI is thinking...', 800);
                         setTimeout(() => {
+                            console.log('⏰ AI timeout triggered, calling makeAIMove()');
                             makeAIMove();
                         }, 800);
+                    } else {
+                        console.log('❌ AI not triggered. Conditions not met.');
                     }
                 }
             } else {
@@ -238,9 +244,18 @@
         }
 
         function makeAIMove() {
+            console.log('🤖 makeAIMove() called');
+            console.log('🤖 currentPlayer:', currentPlayer);
+            console.log('🤖 gameMode:', gameMode);
+            
             if (currentPlayer !== 'black' || gameMode !== 'ai') {
+                console.log('❌ AI move aborted - wrong conditions');
+                console.log('  Expected: currentPlayer="black" and gameMode="ai"');
+                console.log('  Got: currentPlayer="' + currentPlayer + '" and gameMode="' + gameMode + '"');
                 return;
             }
+            
+            console.log('✅ AI conditions met, finding moves...');
             
             // Simple AI: find all black pieces and make a random valid move
             const blackMoves = [];
@@ -267,15 +282,20 @@
                 }
             }
             
+            console.log('🤖 Found', blackMoves.length, 'possible moves for AI');
+            
             if (blackMoves.length > 0) {
                 // Prefer captures
                 let moves = blackMoves.filter(m => m.captured);
                 if (moves.length === 0) moves = blackMoves;
                 
                 const move = moves[Math.floor(Math.random() * moves.length)];
+                console.log('🤖 AI selected move:', move);
+                
                 board[move.toRow][move.toCol] = move.piece;
                 board[move.fromRow][move.fromCol] = null;
                 
+                console.log('🤖 AI move executed, switching to white');
                 currentPlayer = 'white';
                 updateBoard();
                 updateTurnDisplay();
@@ -285,6 +305,9 @@
                 } else {
                     showMessage("Your turn!", 2000);
                 }
+                console.log('✅ AI move completed successfully');
+            } else {
+                console.log('❌ AI found no possible moves!');
             }
         }
 
@@ -336,11 +359,14 @@
             });
             
             document.getElementById('ai-mode-btn').addEventListener('click', () => {
+                console.log('🎮 AI mode button clicked!');
                 gameMode = 'ai';
+                console.log('🎮 gameMode set to:', gameMode);
                 document.getElementById('ai-mode-btn').classList.add('active');
                 document.getElementById('human-mode-btn').classList.remove('active');
                 showMessage('🤖 AI mode! You are White.', 2000);
                 currentPlayer = 'white';
+                console.log('🎮 currentPlayer set to:', currentPlayer);
                 updateTurnDisplay();
             });
 

@@ -142,7 +142,7 @@
 
         function handleSquareClick(rank, file) {
             // Don't allow moves during AI turn
-            if (gameMode === 'ai' && currentPlayer === 'black' && !aiThinking) {
+            if (gameMode === 'ai' && currentPlayer === 'black') {
                 return;
             }
             
@@ -165,7 +165,7 @@
                     
                     // If in AI mode and move was successful, trigger AI move
                     if (gameMode === 'ai' && moveSuccessful && currentPlayer === 'black') {
-                        setTimeout(makeAIMove, 800);
+                        setTimeout(makeAIMove, 1000);
                     }
                 }
             } else {
@@ -215,28 +215,42 @@
         function getAllPossibleMoves(player) {
             const moves = [];
             
-            for (let rank = 0; rank < 8; rank++) {
+            for (let boardRank = 0; boardRank < 8; boardRank++) {
                 for (let file = 0; file < 8; file++) {
-                    const piece = board[rank][file];
+                    const piece = board[boardRank][file];
                     if (piece && ((player === 'white' && piece === piece.toUpperCase()) || 
                                  (player === 'black' && piece === piece.toLowerCase()))) {
                         
-                        // Simple move generation - try all squares
-                        for (let toRank = 0; toRank < 8; toRank++) {
-                            for (let toFile = 0; toFile < 8; toFile++) {
-                                if (rank !== toRank || file !== toFile) {
-                                    const targetPiece = board[toRank][toFile];
-                                    // Basic check - can't capture own pieces
-                                    if (!targetPiece || 
-                                        (player === 'white' && targetPiece === targetPiece.toLowerCase()) ||
-                                        (player === 'black' && targetPiece === targetPiece.toUpperCase())) {
-                                        moves.push({
-                                            from: { rank, file },
-                                            to: { rank: toRank, file: toFile },
-                                            piece: piece,
-                                            captured: targetPiece
-                                        });
-                                    }
+                        // Generate simple moves (adjacent squares for now)
+                        const directions = [
+                            [-1, -1], [-1, 0], [-1, 1],
+                            [0, -1],           [0, 1],
+                            [1, -1], [1, 0], [1, 1]
+                        ];
+                        
+                        for (let [dr, df] of directions) {
+                            const newBoardRank = boardRank + dr;
+                            const newFile = file + df;
+                            
+                            if (newBoardRank >= 0 && newBoardRank < 8 && newFile >= 0 && newFile < 8) {
+                                const targetPiece = board[newBoardRank][newFile];
+                                
+                                // Can move to empty square or capture opponent piece
+                                const canMove = !targetPiece || 
+                                    (player === 'white' && targetPiece === targetPiece.toLowerCase()) ||
+                                    (player === 'black' && targetPiece === targetPiece.toUpperCase());
+                                    
+                                if (canMove) {
+                                    // Convert board coordinates to display coordinates
+                                    const fromDisplayRank = 7 - boardRank;
+                                    const toDisplayRank = 7 - newBoardRank;
+                                    
+                                    moves.push({
+                                        from: { boardRank, file, displayRank: fromDisplayRank },
+                                        to: { boardRank: newBoardRank, file: newFile, displayRank: toDisplayRank },
+                                        piece: piece,
+                                        captured: targetPiece
+                                    });
                                 }
                             }
                         }
@@ -253,14 +267,17 @@
             }
             
             aiThinking = true;
-            showMessage('🤖 AI is thinking...', 0);
+            updateTurnDisplay();
             
             // Get all possible moves for black
             const possibleMoves = getAllPossibleMoves('black');
             
+            console.log('AI found', possibleMoves.length, 'possible moves');
+            
             if (possibleMoves.length === 0) {
                 aiThinking = false;
                 showMessage('🏁 No moves available!', 3000);
+                updateTurnDisplay();
                 return;
             }
             
@@ -274,9 +291,11 @@
             // Pick a random move from selected moves
             const randomMove = selectedMoves[Math.floor(Math.random() * selectedMoves.length)];
             
-            // Make the move
-            board[randomMove.to.rank][randomMove.to.file] = randomMove.piece;
-            board[randomMove.from.rank][randomMove.from.file] = null;
+            console.log('AI making move:', randomMove);
+            
+            // Make the move using board coordinates
+            board[randomMove.to.boardRank][randomMove.to.file] = randomMove.piece;
+            board[randomMove.from.boardRank][randomMove.from.file] = null;
             
             // Switch back to white
             currentPlayer = 'white';
@@ -287,7 +306,7 @@
             updateTurnDisplay();
             
             if (randomMove.captured) {
-                showMessage(`🤖 AI captured your ${randomMove.captured}!`, 2500);
+                showMessage(`🤖 AI captured your ${pieceSymbols[randomMove.captured]}!`, 2500);
             } else {
                 showMessage("Your turn!", 2000);
             }
@@ -321,43 +340,43 @@
             minecraft: {
                 name: '🎮 Minecraft',
                 pieces: {
-                    'K': '🛡️', 'Q': '👑', 'R': '🏰', 'B': '⛪', 'N': '🐎', 'P': '🧑',
-                    'k': '🛡️', 'q': '👑', 'r': '🏰', 'b': '⛪', 'n': '🐎', 'p': '🧑'
+                    'K': '🏰', 'Q': '👑', 'R': '🏰', 'B': '⛪', 'N': '🐎', 'P': '🔴',
+                    'k': '🏰', 'q': '👑', 'r': '🏰', 'b': '⛪', 'n': '🐎', 'p': '🟢'
                 }
             },
             mario: {
                 name: '🍄 Mario Bros',
                 pieces: {
-                    'K': '👑', 'Q': '🍄', 'R': '🟥', 'B': '🔴', 'N': '🎽', 'P': '🔴',
-                    'k': '👾', 'q': '🍄', 'r': '🟪', 'b': '🔵', 'n': '🎽', 'p': '🔵'
+                    'K': '👑', 'Q': '👸', 'R': '🏰', 'B': '⭐', 'N': '🐎', 'P': '🔴',
+                    'k': '👾', 'q': '👑', 'r': '🏯', 'b': '⚫', 'n': '👾', 'p': '🔵'
                 }
             },
             sonic: {
                 name: '💨 Sonic',
                 pieces: {
-                    'K': '💨', 'Q': '✨', 'R': '🗿', 'B': '⚡', 'N': '🏃', 'P': '🔵',
-                    'k': '🤔', 'q': '✨', 'r': '🗿', 'b': '⚡', 'n': '🏃', 'p': '🔴'
+                    'K': '💨', 'Q': '✨', 'R': '🟿', 'B': '⚡', 'N': '🏃', 'P': '🔵',
+                    'k': '🤖', 'q': '🔥', 'r': '🗿', 'b': '⭐', 'n': '🏃', 'p': '🔴'
                 }
             },
             pokemon: {
                 name: '⚡ Pokémon',
                 pieces: {
-                    'K': '⚡', 'Q': '🔥', 'R': '💧', 'B': '🍃', 'N': '⭐', 'P': '⚫',
-                    'k': '🌙', 'q': '🔥', 'r': '💧', 'b': '🍃', 'n': '⭐', 'p': '⚪'
+                    'K': '⚡', 'Q': '🔥', 'R': '💧', 'B': '🍃', 'N': '⭐', 'P': '⚪',
+                    'k': '🌙', 'q': '🌊', 'r': '🌌', 'b': '🍀', 'n': '🌟', 'p': '⚫'
                 }
             },
             space: {
                 name: '🚀 Space',
                 pieces: {
-                    'K': '🚀', 'Q': '🛸', 'R': '🌌', 'B': '⭐', 'N': '🛡️', 'P': '👽',
-                    'k': '🛸', 'q': '🌌', 'r': '⭐', 'b': '🛡️', 'n': '👽', 'p': '🌙'
+                    'K': '🚀', 'Q': '🛸', 'R': '🌌', 'B': '⭐', 'N': '🛡', 'P': '👽',
+                    'k': '🛸', 'q': '🌍', 'r': '🌙', 'b': '✨', 'n': '👽', 'p': '🟡'
                 }
             },
             medieval: {
                 name: '⚔️ Medieval',
                 pieces: {
-                    'K': '👑', 'Q': '👸', 'R': '🏰', 'B': '⛪', 'N': '🐎', 'P': '⚔️',
-                    'k': '👑', 'q': '👸', 'r': '🏰', 'b': '⛪', 'n': '🐎', 'p': '⚔️'
+                    'K': '👑', 'Q': '👸', 'R': '🏰', 'B': '⛪', 'N': '🐎', 'P': '⚔',
+                    'k': '🤴', 'q': '🧝', 'r': '🏯', 'b': '⛪', 'n': '🐎', 'p': '🛡'
                 }
             }
         };
